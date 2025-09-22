@@ -9,11 +9,13 @@ import mysql.connector
 from mysql.connector import Error
 
 # --- Load environment variables ---
-load_dotenv()
+load_dotenv()  # loads variables from .env into os.environ
 
 # --- Config ---
 UPLOAD_FOLDER = os.path.join("static", "uploads")
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "pdf", "doc", "docx", "ppt", "pptx", "zip", "txt"}
+ALLOWED_EXTENSIONS = {
+    "png", "jpg", "jpeg", "gif", "pdf", "doc", "docx", "ppt", "pptx", "zip", "txt"
+}
 DATA_FILE = "courses.json"
 
 # --- Ensure folders exist ---
@@ -47,17 +49,17 @@ def save_courses(courses):
 def get_db_connection():
     try:
         return mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME"),
+            host=os.getenv("DB_HOST", "localhost"),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASSWORD", ""),
+            database=os.getenv("DB_NAME", ""),
         )
     except Error as e:
         print(f"❌ Database connection failed: {e}")
         return None
 
 
-# --- Factory Pattern ---
+# --- Flask App Factory ---
 def create_app():
     app = Flask(__name__)
     app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret")
@@ -83,7 +85,7 @@ def create_app():
                     """
                     INSERT INTO audit_logs (user_id, action, page_url, ip_address, user_agent, timestamp)
                     VALUES (%s, %s, %s, %s, %s, %s)
-                """,
+                    """,
                     (user_id, action, page_url, ip_address, user_agent, timestamp),
                 )
                 conn.commit()
@@ -151,7 +153,7 @@ def create_app():
     from .models import load_user
     login_manager.user_loader(load_user)
 
-    # --- Init SocketIO ---
+    # --- Initialize SocketIO ---
     socketio.init_app(app)
 
     return app
