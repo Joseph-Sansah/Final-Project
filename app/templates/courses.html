@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Courses | CollaboLearn</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/courses.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Navigation -->
+  <nav class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-graduation-cap text-2xl"></i>
+        <h1 class="text-xl font-bold">CollaboLearn</h1>
+      </div>
+      <a href="{{ url_for('main.dashboard') }}" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition">
+        Dashboard
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-6 py-8 flex-grow">
+    <h2 class="text-3xl font-bold mb-6 text-center">Welcome Back, {{ student_name }} 👋</h2>
+
+    <!-- Search Bar -->
+    <div class="mb-8 max-w-xl mx-auto">
+      <input
+        type="text"
+        id="search-input"
+        placeholder="Search courses or materials..."
+        class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-label="Search courses and materials"
+      />
+    </div>
+
+    {% if courses %}
+      <section id="courses-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for course in courses %}
+          <article class="course-card bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-semibold text-blue-700">{{ course.title }}</h3>
+              {% if course.instructor_avatar %}
+                <img src="{{ course.instructor_avatar }}" alt="Instructor" class="w-8 h-8 rounded-full border" />
+              {% endif %}
+            </div>
+            <p class="text-gray-600 mb-3 flex-grow">{{ course.description }}</p>
+
+            <!-- Progress -->
+            <div class="mb-4">
+              <label class="text-sm text-gray-500">Progress</label>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-blue-500 h-2.5 rounded-full" style="width: {{ course.progress }}%;"></div>
+              </div>
+              <small class="text-xs text-gray-500">{{ course.progress }}% completed</small>
+            </div>
+
+            <!-- Materials -->
+            {% if course.materials %}
+              <details class="mt-4">
+                <summary class="cursor-pointer text-sm font-semibold text-indigo-600 mb-2">Materials ({{ course.materials|length }})</summary>
+                <ul class="space-y-2 mt-2 max-h-40 overflow-auto scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-200">
+                  {% for material in course.materials %}
+                    <li class="flex justify-between items-center bg-gray-50 p-2 rounded hover:bg-gray-100 transition">
+                      <span class="truncate" title="{{ material.name }}">
+                        <i class="fas fa-file {{ 'fa-file-pdf' if 'pdf' in material.name.lower() else 'fa-file-word' if 'doc' in material.name.lower() else 'fa-file-image' if 'png' in material.name.lower() or 'jpg' in material.name.lower() else 'fa-file' }} text-gray-600 mr-2"></i>
+                        {{ material.name }}
+                      </span>
+                      <a href="{{ url_for('main.download_material', material_id=material.id) }}" class="text-blue-600 hover:text-blue-800" download>
+                        <i class="fas fa-download"></i>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% else %}
+              <p class="text-sm text-gray-400 italic mt-2">No materials available.</p>
+            {% endif %}
+
+            <!-- CTA -->
+            <div class="mt-auto pt-4 border-t border-gray-200 flex justify-between items-center">
+              <a href="{{ url_for('main.course_detail', course_id=course.id) }}" class="text-sm text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition">
+                Resume Course
+              </a>
+              <span class="text-xs text-gray-500">Created {{ course.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+          </article>
+        {% endfor %}
+      </section>
+    {% else %}
+      <div class="text-center py-16 text-gray-500">
+        <i class="fas fa-folder-open text-6xl mb-6"></i>
+        <p class="text-lg">No courses found. Start by enrolling or creating one!</p>
+      </div>
+    {% endif %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-gray-600 text-center py-4 mt-auto">
+    <p>&copy; {{ current_year }} CollaboLearn. Empowering students everywhere.</p>
+  </footer>
+
+  <script>
+    const searchInput = document.getElementById('search-input');
+    const coursesContainer = document.getElementById('courses-container');
+
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase().trim();
+      if (!coursesContainer) return;
+
+      const courses = coursesContainer.querySelectorAll('.course-card');
+
+      courses.forEach(course => {
+        const titleText = course.querySelector('h3').textContent.toLowerCase();
+        const descriptionText = course.querySelector('p.text-gray-600').textContent.toLowerCase();
+        const materialsItems = course.querySelectorAll('ul > li');
+
+        let courseMatch = titleText.includes(query) || descriptionText.includes(query);
+        let materialMatch = false;
+
+        materialsItems.forEach(item => {
+          const materialName = item.querySelector('span').textContent.toLowerCase();
+          if (materialName.includes(query)) {
+            materialMatch = true;
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        course.style.display = courseMatch || materialMatch ? '' : 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>

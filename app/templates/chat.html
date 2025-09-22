@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat | CollaboLearn</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/chat.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    {% extends "base.html" %}
+
+    {% block title %}Group Chat | CollaboLearn{% endblock %}
+
+    {% block content %}
+    <main class="chat-container">
+        <header class="chat-header">
+            <h2>💬 Group Chat</h2>
+            <p>Collaborate with classmates in real time. Stay respectful and focused.</p>
+        </header>
+
+        <div class="chat-layout">
+            <!-- Sidebar: Active Students -->
+            <aside class="chat-sidebar">
+                <h4>👥 Active Students ({{ active_peers|length }})</h4>
+                <ul id="online-peers">
+                    {% if active_peers %}
+                        {% for peer in active_peers %}
+                            <li class="peer-item">
+                                <i class="fas fa-circle online"></i>
+                                {% if peer.id == current_user.id %}
+                                    <span class="self">You</span>
+                                {% else %}
+                                    <span>{{ peer.full_name }}</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="empty-state">No students are currently online.</li>
+                    {% endif %}
+                </ul>
+            </aside>
+
+            <!-- Main Chat Section -->
+            <section class="chat-main">
+                <div class="chat-messages" id="chat-messages">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="message {% if message.user_id == current_user.id %}self{% endif %}">
+                                <img src="{{ message.profile_image or url_for('static', filename='images/default-avatar.png') }}"
+                                     alt="User avatar" class="avatar">
+                                <div class="message-bubble">
+                                    <strong class="author">{{ message.full_name }}</strong>
+                                    <p class="text">{{ message.message_text }}</p>
+                                    <small class="timestamp">{{ message.created_at.strftime('%b %d, %I:%M %p') }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-chat">No messages yet. Start the conversation!</p>
+                    {% endif %}
+                </div>
+
+                <!-- Message Input -->
+                <div class="chat-input-container">
+                    <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off" />
+                    <button id="send-btn" title="Send Message">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <footer class="chat-footer">
+            <small>💡 Messages update in real-time. Please keep discussions constructive.</small>
+        </footer>
+    </main>
+    {% endblock %}
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='java/chat.js') }}"></script>
+    {% endblock %}
+</body>
+</html>

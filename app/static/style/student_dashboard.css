@@ -1,0 +1,94 @@
+/* static/css/student_dashboard.css */
+
+/* Smooth page entrance */
+body {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sidebar polish */
+.sidebar {
+  min-height: 100vh;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar nav a {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.sidebar nav a:hover {
+  transform: translateX(4px);
+}
+
+/* Course cards uniformity */
+.course-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.course-card h4 {
+  line-height: 1.4;
+}
+.course-card p {
+  flex-grow: 1;
+}
+
+/* Tables */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Peer list avatars hover */
+.peer-list img {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.peer-list img:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Notifications bounce fix */
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(-2px); }
+  50% { transform: translateY(2px); }
+}
+
+/* Dark mode table */
+.dark table thead {
+  background-color: #1f2937;
+}
+
+/* Responsive fix for mobile sidebar */
+@media (max-width: 1024px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    border-radius: 0 0 1rem 1rem;
+  }
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review Feedback | CollaboLearn</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/review_feedback.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>CollaboLearn</h1>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="feedback-main">
+        <h2><i class="fas fa-comments"></i> Review Feedback</h2>
+
+        <!-- Search and Filter -->
+        <div class="feedback-actions">
+            <input type="text" id="search-feedback" placeholder="Search by reviewer, reviewee, or comment...">
+            <select id="filter-status">
+                <option value="">All Status</option>
+                <option value="Open">Open</option>
+                <option value="Reviewed">Reviewed</option>
+            </select>
+        </div>
+
+        <!-- Feedback Table -->
+        <table class="feedback-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Assignment</th>
+                    <th>Reviewer</th>
+                    <th>Reviewee</th>
+                    <th>Score</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if feedbacks %}
+                    {% for fb in feedbacks %}
+                    <tr>
+                        <td>{{ fb.created_at.strftime('%Y-%m-%d') if fb.created_at else 'N/A' }}</td>
+                        <td>{{ fb.assignment_title }}</td>
+                        <td>{{ fb.reviewer_name }}</td>
+                        <td>{{ fb.reviewee_name }}</td>
+                        <td>{{ fb.score }}/10</td>
+                        <td>{{ fb.comments }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" style="text-align:center;">No feedbacks available.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </main>
+    <script src="{{ url_for('static', filename='java/review_feedback.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Meta -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    {% if forum %}{{ forum.title }}{% else %}Forum Details{% endif %} | CollaboLearn Forum
+  </title>
+
+  <!-- External Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    .chat-messages { max-height: calc(100vh - 260px); }
+    .reply-bubble { transition: transform 0.2s ease; }
+    .reply-bubble:hover { transform: translateY(-2px); }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    .star-rating { display: flex; gap: 2px; }
+    .star { cursor: pointer; color: #d1d5db; transition: color 0.2s; }
+    .star.filled, .star:hover { color: #fbbf24; }
+    .peer-card { transition: all 0.3s ease; }
+    .peer-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tab-button.active { background-color: #f3f4f6; color: #1e40af; border-bottom: 2px solid #1e40af; }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
+
+  <!-- Flash Messages -->
+  <div class="max-w-4xl mx-auto mt-4 px-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2">
+          {% for category, message in messages %}
+            <div class="p-3 rounded-lg text-sm
+                        {% if category == 'success' %}bg-green-100 text-green-800
+                        {% elif category == 'danger' %}bg-red-100 text-red-800
+                        {% elif category == 'warning' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <i data-lucide="message-circle" class="w-7 h-7"></i>
+        <div>
+          <h1 class="text-xl font-bold">
+            {% if forum %}{{ forum.title }}{% else %}Forum Details{% endif %}
+          </h1>
+          <p class="text-sm text-blue-200">
+            {% if forum %}Course: {{ forum.course_title or "General Discussion" }}{% endif %}
+          </p>
+        </div>
+      </div>
+      <a href="{{ url_for('main.forum_list') }}"
+         class="flex items-center gap-2 bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        Back to Forums
+      </a>
+    </div>
+  </header>
+
+  <!-- Layout -->
+  <div class="max-w-7xl mx-auto px-6 py-6 flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+    <!-- Sidebar -->
+    <aside class="lg:col-span-1 bg-white rounded-xl shadow p-6 flex flex-col gap-8 sticky top-24 h-fit">
+      <section>
+        <h2 class="text-lg font-semibold mb-3">Forum Information</h2>
+        {% if forum %}
+          <p class="text-sm text-gray-600">{{ forum.description }}</p>
+          <div class="mt-3 text-xs text-gray-500 space-y-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>Created: {{ forum.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="user" class="w-4 h-4"></i>
+              <span>Instructor: {{ forum.instructor_name or "Unknown" }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="message-circle" class="w-4 h-4"></i>
+              <span>{{ forum.total_replies or 0 }} replies</span>
+            </div>
+          </div>
+        {% endif %}
+      </section>
+
+      {% if can_reply %}
+      <section>
+        <h2 class="text-lg font-semibold mb-3">Give Feedback</h2>
+        <form action="{{ url_for('main.add_forum_reply', forum_id=forum.id) }}" method="POST" class="space-y-4">
+          <textarea name="content" rows="3"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Share your thoughts..." required></textarea>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Rate this Forum</label>
+            <div class="star-rating">
+              {% for i in range(1, 6) %}
+                <button type="button" class="star p-1" data-rating="{{ i }}">
+                  <i data-lucide="star" class="w-5 h-5"></i>
+                </button>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="rating" id="ratingValue" value="0">
+          </div>
+
+          <button type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            Submit Feedback
+          </button>
+        </form>
+      </section>
+      {% endif %}
+
+      <!-- Student List Section -->
+      <section>
+        <h2 class="text-lg font-semibold mb-3">Students ({{ students|length }})</h2>
+        <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+          {% for student in students %}
+            <div class="peer-card flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                 onclick="scrollToStudentFeedback('{{ student.id }}')">
+              {% if student.avatar %}
+                <img src="{{ student.avatar }}" class="w-8 h-8 rounded-full object-cover border">
+              {% else %}
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-teal-600 flex items-center justify-center text-white font-bold text-xs">
+                  {{ student.full_name[0]|upper if student.full_name else 'U' }}
+                </div>
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-medium truncate">{{ student.full_name or 'Unknown User' }}</h4>
+                <div class="flex items-center gap-1 mt-1">
+                  {% if student.has_feedback %}
+                    <i data-lucide="check-circle" class="w-3 h-3 text-green-500"></i>
+                    <span class="text-xs text-green-600">Feedback given</span>
+                  {% else %}
+                    <i data-lucide="circle" class="w-3 h-3 text-gray-400"></i>
+                    <span class="text-xs text-gray-500">No feedback</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:col-span-3 flex flex-col bg-white rounded-xl shadow overflow-hidden">
+      <!-- Tabs -->
+      <div class="border-b flex">
+        <button class="tab-button active px-6 py-3 font-medium text-sm flex items-center gap-2" 
+                onclick="switchTab('feedback-tab', this)">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          Feedback
+        </button>
+        <button class="tab-button px-6 py-3 font-medium text-sm flex items-center gap-2" 
+                onclick="switchTab('students-tab', this)">
+          <i data-lucide="users" class="w-4 h-4"></i>
+          Students with Feedback
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar">
+        <!-- Feedback Tab -->
+        <div id="feedback-tab" class="tab-content active p-6">
+          {% if replies %}
+            <div id="repliesContainer" class="space-y-6">
+              {% for reply in replies %}
+                <div class="reply-bubble flex gap-3 p-4 border rounded-lg bg-gray-50"
+                     id="student-{{ reply.user_id }}"
+                     data-rating="{{ reply.rating or 0 }}"
+                     data-date="{{ reply.created_at.timestamp() if reply.created_at else 0 }}">
+                  {% if reply.avatar %}
+                    <img src="{{ reply.avatar }}" class="w-10 h-10 rounded-full object-cover border">
+                  {% else %}
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-teal-600 flex items-center justify-center text-white font-bold">
+                      {{ reply.full_name[0]|upper if reply.full_name else 'U' }}
+                    </div>
+                  {% endif %}
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h4 class="font-semibold">{{ reply.full_name or 'Unknown User' }}</h4>
+                        <span class="text-xs text-gray-500">{{ reply.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+                      </div>
+                      {% if reply.user_id == current_user_id %}
+                        <form action="{{ url_for('main.delete_forum_reply', reply_id=reply.id) }}" method="POST"
+                          onsubmit="return confirm('Delete your feedback?');">
+                          <button type="submit"
+                            class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </form>
+                      {% endif %}
+                    </div>
+                    <p class="mt-2 text-gray-700">{{ reply.content }}</p>
+                    {% if reply.rating %}
+                      <div class="mt-2 flex items-center gap-1">
+                        {% for i in range(1, 6) %}
+                          {% if i <= reply.rating %}
+                            <i data-lucide="star" class="w-4 h-4 text-amber-500 fill-current"></i>
+                          {% else %}
+                            <i data-lucide="star" class="w-4 h-4 text-gray-300"></i>
+                          {% endif %}
+                        {% endfor %}
+                        <span class="text-xs ml-2">{{ reply.rating }}/5</span>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-12">
+              <i data-lucide="message-circle-x" class="w-12 h-12 text-blue-600 mb-4"></i>
+              <h3 class="text-xl font-medium">No feedback yet</h3>
+              <p class="text-gray-500 mt-2">Be the first to share your thoughts!</p>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Students with Feedback Tab -->
+        <div id="students-tab" class="tab-content p-6">
+          {% if student_feedbacks %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {% for student in student_feedbacks %}
+                <div class="peer-card border rounded-lg p-4 hover:shadow-md">
+                  <div class="flex items-start gap-3">
+                    {% if student.avatar %}
+                      <img src="{{ student.avatar }}" class="w-12 h-12 rounded-full object-cover border">
+                    {% else %}
+                      <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-600 flex items-center justify-center text-white font-bold">
+                        {{ student.full_name[0]|upper if student.full_name else 'U' }}
+                      </div>
+                    {% endif %}
+                    <div class="flex-1">
+                      <div class="flex justify-between">
+                        <h4 class="font-semibold">{{ student.full_name or 'Unknown User' }}</h4>
+                        {% if student.rating %}
+                          <div class="flex items-center gap-1">
+                            {% for i in range(1, 6) %}
+                              {% if i <= student.rating %}
+                                <i data-lucide="star" class="w-3 h-3 text-amber-500 fill-current"></i>
+                              {% else %}
+                                <i data-lucide="star" class="w-3 h-3 text-gray-300"></i>
+                              {% endif %}
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </div>
+                      <p class="text-sm text-gray-500 mt-1">{{ student.created_at.strftime('%b %d, %Y') }}</p>
+                      <p class="mt-2 text-gray-700 text-sm line-clamp-3">{{ student.content }}</p>
+                      <button onclick="switchTab('feedback-tab'); scrollToElement('student-{{ student.user_id }}')"
+                              class="mt-3 text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1">
+                        <i data-lucide="eye" class="w-3 h-3"></i>
+                        View full feedback
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-12">
+              <i data-lucide="users" class="w-12 h-12 text-blue-600 mb-4"></i>
+              <h3 class="text-xl font-medium">No student feedback available</h3>
+              <p class="text-gray-500 mt-2">Check back later for student feedback.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // Scroll to bottom
+    const messages = document.getElementById("messagesContainer");
+    if (messages) messages.scrollTop = messages.scrollHeight;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initStarRating();
+    });
+
+    function initStarRating() {
+      const stars = document.querySelectorAll(".star");
+      const ratingValue = document.getElementById("ratingValue");
+      stars.forEach(star => {
+        star.addEventListener("click", () => {
+          const rating = parseInt(star.dataset.rating);
+          ratingValue.value = rating;
+          updateStars(rating);
+        });
+        star.addEventListener("mouseover", () => updateStars(parseInt(star.dataset.rating)));
+      });
+      document.querySelector(".star-rating").addEventListener("mouseleave", () => {
+        updateStars(parseInt(ratingValue.value));
+      });
+      function updateStars(rating) {
+        stars.forEach((s, idx) => s.classList.toggle("filled", idx < rating));
+      }
+    }
+
+    // Tab switching functionality
+    function switchTab(tabId, buttonElement) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active class from all buttons
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      // Show selected tab and mark button as active
+      document.getElementById(tabId).classList.add('active');
+      buttonElement.classList.add('active');
+    }
+
+    // Scroll to specific student feedback
+    function scrollToStudentFeedback(studentId) {
+      switchTab('feedback-tab', document.querySelector('.tab-button'));
+      setTimeout(() => {
+        const element = document.getElementById(`student-${studentId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Highlight temporarily
+          element.classList.add('bg-blue-50');
+          setTimeout(() => {
+            element.classList.remove('bg-blue-50');
+          }, 2000);
+        }
+      }, 100);
+    }
+
+    // Scroll to element
+    function scrollToElement(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  </script>
+</body>
+</html>

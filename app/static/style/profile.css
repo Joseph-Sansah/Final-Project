@@ -1,0 +1,140 @@
+/* Reset & Base */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #9abfca;
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 0.6em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Header */
+.site-header {
+  background-color: #6c5ce7;
+  color: white;
+  padding: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.branding {
+  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+/* Alerts */
+.alerts {
+  margin: 1em auto;
+  max-width: 800px;
+}
+
+.alert {
+  padding: 0.75em;
+  margin-bottom: 0.5em;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.alert.success { background-color: #dff0d8; color: #3c763d; }
+.alert.error { background-color: #f2dede; color: #a94442; }
+
+/* Layout */
+.profile-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+  max-width: 1000px;
+  margin: 2em auto;
+  padding: 0 1em;
+}
+
+.profile-sidebar {
+  flex: 1 1 250px;
+  background-color: #fff;
+  padding: 1.5em;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.avatar img {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.upload-btn {
+  display: inline-block;
+  margin-top: 0.5em;
+  cursor: pointer;
+  color: #6c5ce7;
+}
+
+.hidden {
+  display: none;
+}
+
+.role {
+  font-size: 1em;
+  color: #888;
+  margin: 0.5em 0;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.6em 1em;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-top: 1em;
+}
+
+.btn-primary {
+  background-color: #6c5ce7;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #eee;
+  color: #333;
+}
+
+/* Form */
+.profile-form {
+  flex: 2 1 500px;
+  background-color: #fff;
+  padding: 2em;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.profile-form h3 {
+  margin-bottom: 1em;
+  color: #6c5ce7;
+}
+
+.form-group {
+  margin-bottom: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.form-group label {
+  width: 30px;
+  text-align: center;
+  color: #6c5ce7;
+}

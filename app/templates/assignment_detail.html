@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignment Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assignment_detail.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>CollaboLearn</h1>
+        </div>
+        <a href="{{ url_for('student_dashboard') }}" class="nav-link">Dashboard</a>
+    </nav>
+    <div class="container">
+        <h2>{{ assignment.title }}</h2>
+        <p><strong>Description:</strong> {{ assignment.description }}</p>
+        <p><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+        <hr>
+
+        {% if session.role == 'student' %}
+        <h3>Submit Your Work</h3>
+        <form method="post">
+            <textarea name="content" rows="6" placeholder="Paste or write your assignment here..." required></textarea>
+            <button type="submit">Submit Assignment</button>
+        </form>
+        <hr>
+        {% endif %}
+
+        <h3>Submissions</h3>
+        {% if submissions %}
+            <ul>
+            {% for sub in submissions %}
+                <li>
+                    <strong>Student:</strong> {{ sub.full_name }}<br>
+                    <strong>Submitted At:</strong> {{ sub.submitted_at }}<br>
+                    <strong>Content:</strong> {{ sub.content|e }}<br>
+                    {% if sub.grade %}
+                        <strong>Grade:</strong> {{ sub.grade }}<br>
+                    {% endif %}
+                    {% if sub.feedback %}
+                        <strong>Instructor Feedback:</strong> {{ sub.feedback }}<br>
+                    {% endif %}
+
+                    {% if session.role == 'instructor' %}
+                    <!-- Instructor grading form -->
+                    <form method="post" style="margin-top:10px;">
+                        <input type="hidden" name="submission_id" value="{{ sub.id }}">
+                        <label>Grade: <input type="text" name="grade" value="{{ sub.grade or '' }}" required></label>
+                        <label>Feedback: <input type="text" name="feedback" value="{{ sub.feedback or '' }}"></label>
+                        <button type="submit">Submit Grade</button>
+                    </form>
+                    {% endif %}
+
+                    {% if session.role == 'student' and sub.student_id != session.user_id %}
+                    <!-- Peer feedback form -->
+                    <form method="post" style="margin-top:10px;">
+                        <input type="hidden" name="peer_feedback" value="1">
+                        <input type="hidden" name="reviewee_id" value="{{ sub.student_id }}">
+                        <label>Score (1-5): <input type="number" name="score" min="1" max="5" required></label>
+                        <label>Comments: <input type="text" name="comments" required></label>
+                        <button type="submit">Submit Peer Feedback</button>
+                    </form>
+                    {% endif %}
+                </li>
+                <hr>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No submissions yet.</p>
+        {% endif %}
+
+        <h3>Peer Feedback</h3>
+        {% if feedbacks %}
+            <ul>
+            {% for fb in feedbacks %}
+                <li>
+                    <strong>Reviewer:</strong> {{ fb.reviewer_name }}<br>
+                    <strong>Score:</strong> {{ fb.score }}<br>
+                    <strong>Comments:</strong> {{ fb.comments }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No peer feedback yet.</p>
+        {% endif %}
+
+        <a href="{{ url_for('assignments') }}">Back to Assignments</a>
+    </div>
+</body>
+</html>

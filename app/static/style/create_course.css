@@ -1,0 +1,12 @@
+/* No additional CSS is strictly needed beyond the Tailwind classes
+   and the inline style in the HTML, but you can add custom styles here. */
+
+/* Example for custom styling if needed */
+.course-item {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.course-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

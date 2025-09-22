@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Peer Analytics | CollaboLearn</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/peer_analytics.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="header">
+    <h1>Peer Analytics Dashboard</h1>
+    <a href="{{ url_for('main.instructor_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+  </header>
+
+  <section class="overview">
+    <div class="metric-card">
+      <h3>Avg. Feedback per Student</h3>
+      <p>{{ avg_feedback_per_student }}</p>
+    </div>
+    <div class="metric-card">
+      <h3>Active Collaborations</h3>
+      <p>{{ active_collaborations }}</p>
+    </div>
+    <div class="metric-card">
+      <h3>Most Engaged Student</h3>
+      <p>{{ top_student }}</p>
+    </div>
+    <div class="metric-card">
+      <h3>Feedback Given</h3>
+      <p>{{ total_feedback }}</p>
+    </div>
+  </section>
+
+  <section class="charts">
+    <div class="chart-container">
+      <h3>Feedback Activity (Last 7 Days)</h3>
+      <canvas id="feedbackChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+      <h3>Top Collaborators</h3>
+      <canvas id="collaborationChart"></canvas>
+    </div>
+  </section>
+</body>
+</html>

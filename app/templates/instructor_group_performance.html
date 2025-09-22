@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Performance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        canvas {
+            max-width: 90%;
+            height: auto;
+            margin: 2rem auto;
+            display: block;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen p-4">
+
+    <!-- Page Title -->
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 mt-8 text-center">
+        Group Performance 
+    </h1>
+
+    <!-- Download Controls -->
+    <div id="controls" class="flex flex-col sm:flex-row gap-4 mb-8">
+        <button id="downloadPdfBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+            Download PDF
+        </button>
+        <button id="downloadCsvBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
+            Download CSV
+        </button>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="w-full max-w-4xl">
+        <canvas id="comboChart"></canvas>
+    </div>
+
+    <script>
+        // Replace the mock data below with Jinja2 dynamic variables in Flask:
+        // const assignmentTitles = {{ assignment_titles | tojson | safe }};
+        // const groupLabels = {{ group_labels | tojson | safe }};
+        // const dataMatrix = {{ data_matrix | tojson | safe }};
+
+
+    // Data passed from Flask using Jinja2
+    const assignmentTitles = { assignment_titles , tojson , safe };
+    const groupLabels = { group_labels , tojson , safe };
+    const dataMatrix = { data_matrix , tojson , safe };
+
+
+
+        // Ensure valid data before rendering
+        if (!assignmentTitles || assignmentTitles.length === 0 ||
+            !groupLabels || groupLabels.length === 0 ||
+            !dataMatrix || Object.keys(dataMatrix).length === 0) {
+            const chartContainer = document.getElementById('comboChart');
+            if (chartContainer) {
+                chartContainer.outerHTML = '<p class="text-center text-gray-600 text-lg mt-8">No data available to display the chart.</p>';
+            }
+            console.error("No data available for chart.");
+            throw new Error("Initialization failed: Missing chart data.");
+        }
+
+        const getGrade = (score) => {
+            if (score >= 90) return 'A';
+            if (score >= 80) return 'B';
+            if (score >= 70) return 'C';
+            if (score >= 60) return 'D';
+            return 'F';
+        };
+
+        const prepareChartDatasets = () => {
+            const datasets = [];
+            const colors = ['#EF4444', '#3B82F6', '#22C55E', '#F97316', '#8B5CF6', '#14B8A6', '#A855F7'];
+
+            groupLabels.forEach((group, index) => {
+                const gradeData = dataMatrix[group].map(score => getGrade(score));
+
+                datasets.push({
+                    label: group,
+                    data: gradeData,
+                    backgroundColor: colors[index % colors.length] + 'AA',
+                    borderColor: colors[index % colors.length],
+                    borderWidth: 2,
+                    type: index % 2 === 0 ? 'bar' : 'line',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: colors[index % colors.length],
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                });
+            });
+
+            return datasets;
+        };
+
+        const renderChart = () => {
+            const ctx = document.getElementById('comboChart').getContext('2d');
+            const datasets = prepareChartDatasets();
+            const gradeOrder = ['F', 'D', 'C', 'B', 'A'];
+
+            new Chart(ctx, {
+                data: {
+                    labels: assignmentTitles,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Group Performance Across Assignments (Grades)',
+                            font: { size: 20, weight: 'bold' },
+                            color: '#374151'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleFont: { size: 16 },
+                            bodyFont: { size: 14 },
+                            padding: 10,
+                            cornerRadius: 6,
+                            callbacks: {
+                                label: function(context) {
+                                    const originalScore = dataMatrix[context.dataset.label][context.dataIndex];
+                                    return `${context.dataset.label}: ${getGrade(originalScore)} (${originalScore}%)`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 14 },
+                                color: '#4B5563'
+                            }
+                        },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Assignment Titles',
+                                font: { size: 16, weight: 'bold' },
+                                color: '#374151'
+                            },
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 12 },
+                                color: '#4B5563'
+                            }
+                        },
+                        y: {
+                            type: 'category',
+                            labels: gradeOrder,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Grade',
+                                font: { size: 16, weight: 'bold' },
+                                color: '#374151'
+                            },
+                            ticks: {
+                                font: { size: 12 },
+                                color: '#4B5563',
+                                reverse: false
+                            },
+                            grid: { color: '#E5E7EB' }
+                        }
+                    }
+                }
+            });
+        };
+
+        const downloadCSV = () => {
+            let csv = "Group," + assignmentTitles.join(",") + "\n";
+            groupLabels.forEach(group => {
+                const grades = dataMatrix[group].map(score => getGrade(score));
+                csv += group + "," + grades.join(",") + "\n";
+            });
+
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "group_performance_grades.csv";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        const downloadPDF = () => {
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                console.error("jsPDF is not available.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.text("Group Performance Report (Grades)", 14, 20);
+
+            const headers = [["Group", ...assignmentTitles]];
+            const body = groupLabels.map(group => [group, ...dataMatrix[group].map(score => getGrade(score))]);
+
+            doc.autoTable({
+                head: headers,
+                body: body,
+                startY: 30,
+                theme: 'grid',
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 3,
+                    halign: 'center'
+                },
+                headStyles: {
+                    fillColor: [59, 130, 246],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                bodyStyles: {
+                    textColor: [55, 65, 81]
+                },
+                didDrawPage: function (data) {
+                    const str = "Page " + doc.internal.getNumberOfPages();
+                    doc.setFontSize(10);
+                    doc.text(str, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                }
+            });
+
+            doc.save("group_performance_grades.pdf");
+        };
+
+        // Attach listeners
+        document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
+        document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
+
+        // Run chart rendering after DOM is ready
+        document.addEventListener('DOMContentLoaded', renderChart);
+    </script>
+</body>
+</html>

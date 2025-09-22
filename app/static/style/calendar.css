@@ -1,0 +1,44 @@
+/* Calendar container */
+#calendar {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* FullCalendar overrides */
+.fc .fc-toolbar-title {
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.fc-button {
+  background-color: #3498db !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 6px 12px !important;
+  border-radius: 4px !important;
+  font-size: 0.9rem !important;
+}
+
+.fc-button:hover {
+  background-color: #2980b9 !important;
+}
+
+.fc-event {
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: none;
+}
+
+.fc-daygrid-event-dot {
+  border-color: #3498db;
+}
+
+.fc-daygrid-day-number {
+  font-weight: bold;
+  color: #2c3e50;
+}

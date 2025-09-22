@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignments | CollaboLearn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <div class="max-w-6xl mx-auto px-6 py-10">
+    <!-- Page Header -->
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl font-extrabold text-gray-800">📚 Your Assignments</h1>
+      <p class="text-gray-600 mt-2">Check details, upload solutions, and track your progress</p>
+    </header>
+
+    {% if assignments %}
+      <div class="space-y-6">
+        {% for a in assignments %}
+          <!-- Assignment Card -->
+          <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden">
+            
+            <!-- Header -->
+            <button type="button" 
+                    class="w-full flex justify-between items-center px-6 py-4 bg-gray-50 hover:bg-gray-100 transition"
+                    onclick="document.getElementById('assignment-{{ a.id }}').classList.toggle('hidden')">
+              <div>
+                <h2 class="text-lg font-semibold text-gray-700">{{ a.title }}</h2>
+                <p class="text-sm text-gray-500">⏰ Due: {{ a.due_date.strftime('%Y-%m-%d') if a.due_date else 'N/A' }}</p>
+              </div>
+              <span class="text-xs px-3 py-1 rounded-full 
+                {% if a.submission %} bg-green-100 text-green-700 {% else %} bg-red-100 text-red-700 {% endif %}">
+                {% if a.submission %} Submitted {% else %} Pending {% endif %}
+              </span>
+            </button>
+
+            <!-- Collapsible Body -->
+            <div id="assignment-{{ a.id }}" class="px-6 py-5 hidden border-t">
+              <!-- Assignment Details -->
+              <p class="text-gray-700 text-sm leading-relaxed mb-4">{{ a.description }}</p>
+
+              <!-- Submission Section -->
+              {% if a.submission %}
+                <div class="space-y-3">
+                  <p class="text-green-700 font-medium text-sm">✅ Already submitted</p>
+                  <p class="text-gray-500 text-xs">
+                    Submitted on: {{ a.submission.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+                  </p>
+                  
+                  <a href="{{ url_for('main.download_submission', submission_id=a.submission.id) }}"
+                     class="inline-block text-blue-600 underline text-sm">📂 Download Your Submission</a>
+
+                  <!-- Update Submission Form -->
+                  <form method="post" enctype="multipart/form-data" 
+                        action="{{ url_for('main.assignments') }}" class="space-y-3">
+                    <input type="hidden" name="assignment_id" value="{{ a.id }}">
+                    <label class="block text-sm font-medium text-gray-700">Update Submission:</label>
+                    <input type="file" name="solution_file" class="border rounded p-2 w-full text-sm" required>
+                    <button type="submit"
+                            class="w-full bg-yellow-600 text-white py-2 rounded hover:bg-yellow-700 text-sm">
+                      🔄 Update Submission
+                    </button>
+                  </form>
+                </div>
+              {% else %}
+                <!-- New Submission Form -->
+                <form method="post" enctype="multipart/form-data" 
+                      action="{{ url_for('main.assignments') }}" class="space-y-3">
+                  <input type="hidden" name="assignment_id" value="{{ a.id }}">
+                  <label class="block text-sm font-medium text-gray-700">Upload Solution:</label>
+                  <input type="file" name="solution_file" class="border rounded p-2 w-full text-sm" required>
+                  <button type="submit"
+                          class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm">
+                    📤 Submit Assignment
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- Empty State -->
+      <div class="bg-white border rounded-lg p-12 shadow text-center">
+        <p class="text-gray-400 text-lg">✨ You don’t have any assignments right now.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Tiny helper for accordion toggle -->
+  <script>
+    // No heavy JS needed, handled inline with toggle
+  </script>
+
+</body>
+</html>

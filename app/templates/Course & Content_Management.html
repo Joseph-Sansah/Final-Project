@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Course Management | CollaboLearn</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/course_management.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+  <section class="dashboard-section">
+    <h2>📚 Course & Content Management</h2>
+    <button class="btn primary" onclick="openCourseModal()">+ New Course</button>
+
+    <!-- Course List Display -->
+    <ul id="courses-list" class="course-list"></ul>
+  </section>
+
+  <!-- Course Modal -->
+  <div id="courseModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeCourseModal()">&times;</span>
+      <h3 id="modalTitle">Create New Course</h3>
+      <form id="courseForm">
+        <input type="text" id="courseTitle" placeholder="Course Title" required />
+        <textarea id="courseDescription" placeholder="Course Description" required></textarea>
+        <input type="hidden" id="editIndex" value="">
+        <button type="submit" class="btn primary">Save Course</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/course_management.js') }}"></script>
+</body>
+</html>

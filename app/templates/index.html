@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Learning Platform</title>
+     <link rel="stylesheet" href="{{ url_for('static', filename='style/index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="hero">
+        <nav>
+            <img src="{{ url_for('static', filename='images/SmallSquareLogoJpg.jpg') }}" class="logo" alt="Logo">
+            
+        </nav>
+        <div class="content">
+            <div class="text">
+                <h1>Welcome to OnGod<br>Collaborative Learning Platform</h1>
+                <p>Join us in our mission to create a collaborative learning environment that
+                   empowers individuals and students to learn and grow together.</p>
+                <a href="{{ url_for('main.register') }}" class="btn">Get Started</a>
+            </div>
+            <img src="{{ url_for('static', filename='images/pleased-young-.jpg') }}" class="feature-image" alt="Feature Image">
+        </div>
+    </div>
+</body>
+</html>

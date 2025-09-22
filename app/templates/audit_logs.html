@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Audit Logs | CollaboLearn</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/audit_logs.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <main class="audit-container">
+    <header class="audit-header">
+      <h1><i class="fas fa-clipboard-list"></i> Audit Logs</h1>
+      <p>Monitor user registrations, logins, page visits, and activity timestamps.</p>
+    </header>
+     <div class="back-to-dashboard">
+      <a href="{{ url_for('main.admin_dashboard') }}" class="dashboard-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+    <form method="GET" action="{{ url_for('main.audit_logs') }}" class="filter-form">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="search_user">User:</label>
+          <input type="text" name="search_user" placeholder="Name or Email" value="{{ request.args.get('search_user', '') }}">
+        </div>
+
+        <div class="filter-group">
+          <label for="action_type">Action:</label>
+          <select name="action_type">
+            <option value="">All</option>
+            <option value="login" {% if request.args.get('action_type') == 'login' %}selected{% endif %}>Login</option>
+            <option value="register" {% if request.args.get('action_type') == 'register' %}selected{% endif %}>Register</option>
+            <option value="navigate" {% if request.args.get('action_type') == 'navigate' %}selected{% endif %}>Navigation</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="date_from">From:</label>
+          <input type="date" name="date_from" value="{{ request.args.get('date_from', '') }}">
+        </div>
+
+        <div class="filter-group">
+          <label for="date_to">To:</label>
+          <input type="date" name="date_to" value="{{ request.args.get('date_to', '') }}">
+        </div>
+
+        <button type="submit" class="filter-btn"><i class="fas fa-filter"></i> Filter</button>
+      </div>
+    </form>
+
+    <form method="POST" action="{{ url_for('main.audit_logs') }}" class="clear-form">
+      <button type="submit" name="clear_logs" value="true" class="clear-btn"><i class="fas fa-trash"></i> Clear All Logs</button>
+    </form>
+
+    <section class="table-section">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Page</th>
+            <th>IP</th>
+            <th>Device</th>
+            <th>Timestamp</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if logs %}
+            {% for log in logs %}
+              <tr>
+                <td>{{ log.id }}</td>
+                <td><strong>{{ log.user_name }}</strong><br><small>{{ log.user_id }}</small></td>
+                <td><span class="badge {{ log.role }}">{{ log.role|capitalize }}</span></td>
+                <td>{{ log.action|capitalize }}</td>
+                <td><a href="{{ log.page_url }}" target="_blank">{{ log.page_url }}</a></td>
+                <td>{{ log.ip_address }}</td>
+                <td>{{ log.user_agent }}</td>
+                <td>{{ log.timestamp }}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('main.delete_log', log_id=log.id) }}">
+                    <button type="submit" class="delete-btn"><i class="fas fa-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="9" style="text-align:center;">No logs found.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/audit_logs.js') }}"></script>
+</body>
+</html>

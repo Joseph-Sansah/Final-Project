@@ -1,0 +1,58 @@
+/* Notifications Page */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f7f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 30px;
+    color: #2c3e50;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    max-width: 700px;
+    margin: 30px auto;
+}
+
+li {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 10px;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+li:hover {
+    background-color: #eef6ff;
+    border-color: #bcdfff;
+}
+
+li strong {
+    display: block;
+    font-size: 18px;
+    color: #1a73e8;
+}
+
+li small {
+    color: #777;
+    font-size: 13px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    ul {
+        padding: 0 15px;
+    }
+
+    li {
+        padding: 15px;
+    }
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/resources.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+   {% extends "base.html" %}
+
+{% block title %}Study Resources | CollaboLearn{% endblock %}
+
+{% block content %}
+<main class="resources-page">
+  <h2>📚 Study Resources</h2>
+  <p class="intro">Access instructor-assigned materials, peer-shared notes, videos, and tools to boost your learning.</p>
+
+  <!-- Search & Filter Bar -->
+  <div class="resource-controls">
+    <input type="text" id="search-resources" placeholder="Search resources..." class="search-input">
+    <select id="filter-category" class="filter-select">
+      <option value="all">All Categories</option>
+      <option value="notes">Notes</option>
+      <option value="videos">Videos</option>
+      <option value="assignments">Assignments</option>
+      <option value="tools">Tools & Templates</option>
+    </select>
+  </div>
+
+  <!-- Resources Grid -->
+  <section class="resources-grid" id="resources-grid">
+    {% for resource in resources %}
+    <div class="resource-card" data-category="{{ resource.category | default('other') }}" data-title="{{ resource.title.lower() }}">
+      <div class="resource-icon">
+        {% if resource.category == 'notes' %}
+          <i class="fas fa-sticky-note"></i>
+        {% elif resource.category == 'videos' %}
+          <i class="fas fa-video"></i>
+        {% elif resource.category == 'assignments' %}
+          <i class="fas fa-tasks"></i>
+        {% elif resource.category == 'tools' %}
+          <i class="fas fa-wrench"></i>
+        {% else %}
+          <i class="fas fa-file-alt"></i>
+        {% endif %}
+      </div>
+      <h3>{{ resource.title }}</h3>
+      <p class="resource-desc">{{ resource.description | default("No description provided.") }}</p>
+      <p class="resource-meta">
+        <small>
+          <strong>Course:</strong> {{ resource.course | default("General") }} |
+          <strong>Shared by:</strong> {{ resource.author | default("Instructor") }}
+        </small>
+      </p>
+
+      <!-- Rating Display -->
+      <div class="resource-rating">
+        <div class="stars">
+          {% set avg_rating = resource.avg_rating or 0 %}
+          {% for i in range(1, 6) %}
+            {% if i <= avg_rating %}
+              <i class="fas fa-star"></i>
+            {% elif i - 0.5 <= avg_rating %}
+              <i class="fas fa-star-half-alt"></i>
+            {% else %}
+              <i class="far fa-star"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <small>{{ '%0.1f'|format(avg_rating) }} ({{ resource.total_reviews }} reviews)</small>
+      </div>
+
+      <!-- Rate This Button -->
+      {% if not resource.user_has_rated %}
+      <div class="rate-resource">
+        <button class="btn btn-sm rate-btn" onclick="showRatingModal('{{ resource.id }}')">
+          Rate This Resource ⭐
+        </button>
+      </div>
+      {% endif %}
+
+      <!-- Resource Actions -->
+      <div class="resource-actions">
+        {% if resource.url %}
+          <a href="{{ resource.url }}" target="_blank" class="btn btn-sm">Open</a>
+        {% endif %}
+        {% if resource.can_edit %}
+          <a href="{{ url_for('main.edit_resource', resource_id=resource.id) }}" class="action-link">Edit</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <!-- No Results Message -->
+  <div class="no-results" id="no-results" style="display: none;">
+    <p>No resources match your search.</p>
+  </div>
+
+  <!-- Add New Resource Button -->
+  {% if current_user.is_instructor or current_user.role == 'admin' %}
+  <div class="add-resource-cta">
+    <a href="{{ url_for('main.add_resource') }}" class="btn">
+      <i class="fas fa-plus"></i> Add New Resource
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Collaborative Message -->
+  <section class="call-to-action">
+    <h3>Share Knowledge, Grow Together 🌱</h3>
+    <p>Did you create helpful notes or find a great tutorial? Share it with your peers and earn achievement points!</p>
+    <a href="{{ url_for('main.submit_resource') }}" class="btn btn-outline">Share a Resource</a>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Simple client-side filtering
+  const searchInput = document.getElementById('search-resources');
+  const filterSelect = document.getElementById('filter-category');
+  const resourceCards = document.querySelectorAll('.resource-card');
+  const noResults = document.getElementById('no-results');
+
+  function filterResources() {
+    const query = searchInput.value.toLowerCase();
+    const category = filterSelect.value;
+    let visibleCount = 0;
+
+    resourceCards.forEach(card => {
+      const title = card.dataset.title;
+      const cardCategory = card.dataset.category;
+      const matchesSearch = title.includes(query);
+      const matchesCategory = category === 'all' || cardCategory === category;
+
+      if (matchesSearch && matchesCategory) {
+        card.style.display = 'block';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  searchInput.addEventListener('input', filterResources);
+  filterSelect.addEventListener('change', filterResources);
+</script>
+{% endblock %}
+</body>
+</html>

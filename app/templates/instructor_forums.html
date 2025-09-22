@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instructor Forums Dashboard | Learning Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .progress-ring { transition: stroke-dashoffset 0.5s ease; }
+    .hover-scale { transition: transform 0.2s; }
+    .hover-scale:hover { transform: scale(1.02); }
+  </style>
+</head>
+<body class="bg-gray-50">
+<!-- Header -->
+<header class="bg-gradient-to-r from-indigo-700 to-purple-800 text-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-4">
+      <i data-lucide="message-square" class="w-7 h-7"></i>
+      <div>
+        <h1 class="text-xl font-bold">Instructor Forums Dashboard</h1>
+        <p class="text-sm text-indigo-200">Welcome back, {{ instructor_name }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-2">
+        <div class="text-right">
+          <p class="text-sm font-medium">{{ instructor_name }}</p>
+          <p class="text-xs text-indigo-200">{{ instructor_email }}</p>
+        </div>
+        {% if instructor_avatar %}
+        <img src="{{ instructor_avatar }}" alt="Instructor" class="w-10 h-10 rounded-full border-2 border-white">
+        {% else %}
+        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
+          <i data-lucide="user" class="w-5 h-5"></i>
+        </div>
+        {% endif %}
+      </div>
+      <a href="{{ url_for('main.instructor_dashboard') }}" class="flex items-center gap-2 bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Dashboard</span>
+      </a>
+    </div>
+  </div>
+</header>
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow p-6 hover-scale">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Forums</p>
+          <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_forums }}</p>
+        </div>
+        <div class="bg-indigo-100 p-3 rounded-lg">
+          <i data-lucide="folder" class="w-6 h-6 text-indigo-600"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow p-6 hover-scale">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Replies</p>
+          <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_replies }}</p>
+        </div>
+        <div class="bg-blue-100 p-3 rounded-lg">
+          <i data-lucide="message-circle" class="w-6 h-6 text-blue-600"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow p-6 hover-scale">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Unrated Replies</p>
+          <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_unrated }}</p>
+        </div>
+        <div class="bg-amber-100 p-3 rounded-lg">
+          <i data-lucide="clock" class="w-6 h-6 text-amber-600"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow p-6 hover-scale">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Rated Replies</p>
+          <p class="text-3xl font-bold text-gray-800 mt-1">{{ total_rated }}</p>
+        </div>
+        <div class="bg-green-100 p-3 rounded-lg">
+          <i data-lucide="star" class="w-6 h-6 text-green-600"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column -->
+    <div class="lg:col-span-2 space-y-8">
+      <!-- Forums Section -->
+      <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-700 px-6 py-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="folder-open" class="w-5 h-5"></i>
+              Your Forums
+            </h2>
+            <a href="{{ url_for('main.create_forum') }}" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              New Forum
+            </a>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          {% if forums %}
+          <div class="space-y-4">
+            {% for forum in forums %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold text-lg text-gray-800">{{ forum.title }}</h3>
+                  <p class="text-gray-600 text-sm mt-1">{{ forum.description[:100] }}{% if forum.description|length > 100 %}...{% endif %}</p>
+                  <div class="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                    <span class="flex items-center gap-1">
+                      <i data-lucide="calendar" class="w-4 h-4"></i>
+                      {{ forum.created_at.strftime('%b %d, %Y') }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i data-lucide="message-circle" class="w-4 h-4"></i>
+                      {{ forum.total_replies }} replies
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i data-lucide="users" class="w-4 h-4"></i>
+                      {{ forum.student_replies }} students
+                    </span>
+                    {% if forum.avg_rating %}
+                    <span class="flex items-center gap-1">
+                      <i data-lucide="star" class="w-4 h-4 text-amber-500"></i>
+                      {{ "%.1f"|format(forum.avg_rating) }}
+                    </span>
+                    {% endif %}
+                  </div>
+                </div>
+                <a href="{{ url_for('main.instructor_forum_detail', forum_id=forum.id) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                  View
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-12 text-gray-500">
+            <i data-lucide="folder-x" class="w-16 h-16 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium">No forums created yet</h3>
+            <p>Create your first forum to engage with students.</p>
+            <a href="{{ url_for('main.create_forum') }}" class="mt-4 inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Create Forum
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Student Replies Section -->
+      <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-700 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+            Student Replies
+          </h2>
+        </div>
+        
+        <div class="border-b border-gray-200">
+          <nav class="flex -mb-px">
+            <button class="tab-btn py-4 px-6 text-center border-b-2 font-medium text-sm focus:outline-none transition border-indigo-500 text-indigo-600" data-tab="unrated">
+              Unrated Replies <span class="ml-2 bg-amber-500 text-white rounded-full px-2 py-0.5 text-xs">{{ total_unrated }}</span>
+            </button>
+            <button class="tab-btn py-4 px-6 text-center border-b-2 font-medium text-sm focus:outline-none transition border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="rated">
+              Rated Replies <span class="ml-2 bg-green-500 text-white rounded-full px-2 py-0.5 text-xs">{{ total_rated }}</span>
+            </button>
+          </nav>
+        </div>
+        
+        <!-- Unrated Replies Tab -->
+        <div id="unrated" class="tab-content active p-6">
+          {% if unrated_replies %}
+          <div class="space-y-6">
+            {% for reply in unrated_replies %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+              <div class="flex gap-4">
+                {% if reply.student_avatar %}
+                <img src="{{ reply.student_avatar }}" alt="{{ reply.student_name }}" class="w-12 h-12 rounded-full">
+                {% else %}
+                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <i data-lucide="user" class="w-6 h-6 text-indigo-600"></i>
+                </div>
+                {% endif %}
+                
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <div>
+                      <h4 class="font-semibold text-gray-800">{{ reply.student_name }}</h4>
+                      <p class="text-sm text-gray-500">{{ reply.student_email }}</p>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      {{ reply.created_at.strftime('%b %d, %Y %H:%M') }}
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3">
+                    <p class="text-gray-700">{{ reply.content }}</p>
+                  </div>
+                  
+                  <div class="mt-4 flex justify-between items-center">
+                    <div>
+                      <span class="text-sm text-gray-500">In: </span>
+                      <a href="{{ url_for('main.forum_detail', forum_id=reply.forum_id) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                        {{ reply.forum_title }}
+                      </a>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('main.rate_forum_reply', reply_id=reply.id) }}" class="flex items-center gap-3">
+                      <div class="flex items-center gap-1">
+                        <span class="text-sm text-gray-600 mr-2">Rating:</span>
+                        {% for i in range(1, 6) %}
+                        <button type="submit" name="rating" value="{{ i }}" class="text-gray-300 hover:text-amber-500 focus:outline-none">
+                          <i data-lucide="star" class="w-5 h-5"></i>
+                        </button>
+                        {% endfor %}
+                      </div>
+                      <input type="text" name="feedback" placeholder="Add feedback..." class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                      <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-1 transition">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        Submit
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-12 text-gray-500">
+            <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium">All replies have been rated!</h3>
+            <p>Great job keeping up with student feedback.</p>
+          </div>
+          {% endif %}
+        </div>
+        
+        <!-- Rated Replies Tab -->
+        <div id="rated" class="tab-content p-6">
+          {% if rated_replies %}
+          <div class="space-y-6">
+            {% for reply in rated_replies %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+              <div class="flex gap-4">
+                {% if reply.student_avatar %}
+                <img src="{{ reply.student_avatar }}" alt="{{ reply.student_name }}" class="w-12 h-12 rounded-full">
+                {% else %}
+                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <i data-lucide="user" class="w-6 h-6 text-indigo-600"></i>
+                </div>
+                {% endif %}
+                
+                <div class="flex-1">
+                  <div class="flex justify-between">
+                    <div>
+                      <h4 class="font-semibold text-gray-800">{{ reply.student_name }}</h4>
+                      <p class="text-sm text-gray-500">{{ reply.student_email }}</p>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      {{ reply.created_at.strftime('%b %d, %Y %H:%M') }}
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3">
+                    <p class="text-gray-700">{{ reply.content }}</p>
+                  </div>
+                  
+                  <div class="mt-4 flex justify-between items-center">
+                    <div>
+                      <span class="text-sm text-gray-500">In: </span>
+                      <a href="{{ url_for('main.forum_detail', forum_id=reply.forum_id) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                        {{ reply.forum_title }}
+                      </a>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                      <div class="flex items-center">
+                        <span class="text-sm text-gray-600 mr-2">Rating:</span>
+                        {% for i in range(1, 6) %}
+                        {% if i <= reply.rating %}
+                        <i data-lucide="star" class="w-5 h-5 text-amber-500 fill-current"></i>
+                        {% else %}
+                        <i data-lucide="star" class="w-5 h-5 text-gray-300"></i>
+                        {% endif %}
+                        {% endfor %}
+                        <span class="ml-1 text-sm font-medium">{{ reply.rating }}/5</span>
+                      </div>
+                      
+                      {% if reply.feedback %}
+                      <div class="bg-blue-50 text-blue-800 px-3 py-1 rounded-lg text-sm">
+                        {{ reply.feedback }}
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-12 text-gray-500">
+            <i data-lucide="star" class="w-16 h-16 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium">No rated replies yet</h3>
+            <p>Start rating student replies to track their progress.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Column -->
+    <div class="space-y-8">
+      <!-- Top Students -->
+      <div class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-700 px-6 py-4">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="award" class="w-5 h-5"></i>
+            Top Students
+          </h2>
+        </div>
+        
+        <div class="p-6">
+          {% if top_students %}
+          <div class="space-y-4">
+            {% for student in top_students %}
+            <div class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition">
+              {% if student.avatar %}
+              <img src="{{ student.avatar }}" alt="{{ student.full_name }}" class="w-10 h-10 rounded-full">
+              {% else %}
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                <i data-lucide="user" class="w-5 h-5 text-indigo-600"></i>
+              </div>
+              {% endif %}
+              
+              <div class="flex-1">
+                <h4 class="font-medium text-gray-800">{{ student.full_name }}</h4>
+                <p class="text-sm text-gray-500">{{ student.email }}</p>
+              </div>
+              
+              <div class="text-right">
+                <div class="flex items-center gap-1">
+                  <i data-lucide="star" class="w-4 h-4 text-amber-500"></i>
+                  <span class="font-medium">{{ "%.1f"|format(student.avg_rating) }}</span>
+                </div>
+                <p class="text-xs text-gray-500">{{ student.reply_count }} replies</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-8 text-gray-500">
+            <i data-lucide="users" class="w-12 h-12 mx-auto mb-3"></i>
+            <h3 class="font-medium">No top students yet</h3>
+            <p class="text-sm">Rate student replies to see top performers.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Initialize Lucide icons
+  lucide.createIcons();
+  
+  // Tab functionality
+  document.querySelectorAll('.tab-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      // Remove active class from all tabs and contents
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-indigo-500', 'text-indigo-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Add active class to clicked tab and corresponding content
+      button.classList.remove('border-transparent', 'text-gray-500');
+      button.classList.add('border-indigo-500', 'text-indigo-600');
+      
+      const tabId = button.getAttribute('data-tab');
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

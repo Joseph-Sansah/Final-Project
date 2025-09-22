@@ -1,0 +1,29 @@
+<!-- templates/student_quizzes.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Quizzes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/quizzes.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="quiz-list-container">
+        <h2>Available Quizzes</h2>
+        {% if quizzes %}
+            <ul>
+                {% for quiz in quizzes %}
+                    <li>
+                        <strong>{{ quiz.title }}</strong>
+                        <form method="GET" action="{{ url_for('main.attempt_quiz', quiz_id=quiz.id) }}">
+                            <button type="submit">Take Quiz</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No quizzes available.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

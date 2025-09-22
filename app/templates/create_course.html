@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Course</title>
+
+  <!-- Tailwind CSS & Alpine.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <!-- Fonts & Custom Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/create_course.css') }}" />
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #b4effa;
+    }
+  </style>
+</head>
+
+<body class="p-6">
+  <!-- Navigation -->
+  <nav class="mb-6">
+    <a href="{{ url_for('main.instructor_dashboard') }}"
+       class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition">
+      <i class="fas fa-arrow-left text-indigo-500"></i>
+      Back to Dashboard
+    </a>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-2xl space-y-10" x-data="{ showForm: false }">
+
+    <!-- Page Header -->
+    <header class="text-center space-y-2">
+      <h1 class="text-4xl font-bold text-gray-800">Add New Course</h1>
+      <p class="text-lg text-gray-500">Fill out the form below to add a course for your students.</p>
+    </header>
+
+    <!-- Toggle Button -->
+    <div class="text-center">
+      <button @click="showForm = !showForm"
+              class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition">
+        <span x-text="showForm ? 'Hide Form' : 'Show Form'"></span>
+      </button>
+    </div>
+
+    <!-- Course Form -->
+    <section x-show="showForm"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="bg-gray-50 p-6 rounded-lg shadow-inner space-y-6">
+
+      <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <!-- Title -->
+        <div>
+          <label for="courseTitle" class="block text-sm font-medium text-gray-700">Course Title</label>
+          <input type="text" id="courseTitle" name="courseTitle" required minlength="4"
+                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+        </div>
+
+        <!-- Code -->
+        <div>
+          <label for="courseCode" class="block text-sm font-medium text-gray-700">Course Code</label>
+          <input type="text" id="courseCode" name="courseCode" required minlength="4" pattern="[A-Za-z0-9]+"
+                 title="Course code must be alphanumeric and at least 4 characters"
+                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+        </div>
+
+        <!-- Instructor -->
+        <div>
+          <label for="instructorName" class="block text-sm font-medium text-gray-700">Instructor Name</label>
+          <input type="text" id="instructorName" name="instructorName" required
+                 class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label for="courseDescription" class="block text-sm font-medium text-gray-700">Course Description</label>
+          <textarea id="courseDescription" name="courseDescription" rows="4" required minlength="10"
+                    class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+        </div>
+
+        <!-- Materials -->
+        <div>
+          <label for="courseMaterials" class="block text-sm font-medium text-gray-700">Course Materials (Optional)</label>
+          <input type="file" id="courseMaterials" name="courseMaterials"
+                 class="mt-1 w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-indigo-50 file:text-indigo-700
+                        hover:file:bg-indigo-100" />
+        </div>
+
+        <!-- Submit -->
+        <div>
+          <button type="submit"
+                  class="w-full py-3 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            Add Course
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Course List -->
+    <section>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Available Courses</h2>
+      <p class="text-sm text-gray-500 mb-4">Total courses: {{ courses | length }}</p>
+
+      <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {% if courses and courses|length > 0 %}
+          {% for course in courses %}
+            <article class="bg-white border border-gray-200 rounded-lg p-4 shadow space-y-2">
+              <h3 class="text-lg font-semibold text-gray-800">{{ course.title }}</h3>
+              <p class="text-sm text-gray-600">Enrolled Students: {{ course.enrolled_students if course.enrolled_students is not none else 0 }}</p>
+              <p class="text-sm text-gray-500">{{ course.description }}</p>
+
+              {% if course.materials %}
+                <a href="{{ url_for('static', filename='uploads/' ~ course.materials) }}"
+                   class="text-indigo-600 text-sm mt-2 inline-block">Download Materials</a>
+              {% endif %}
+
+              <!-- Actions -->
+              <div class="mt-4 flex justify-between">
+                <a href="{{ url_for('main.edit_course', course_id=course.id) }}"
+                   class="text-sm text-white bg-yellow-500 px-3 py-1 rounded hover:bg-yellow-600 transition">Edit</a>
+
+                <form method="POST" action="{{ url_for('main.delete_course', course_id=course.id) }}">
+                  <button type="submit"
+                          class="text-sm text-white bg-red-500 px-3 py-1 rounded hover:bg-red-600 transition"
+                          onclick="return confirm('Are you sure you want to delete this course?');">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        {% else %}
+          <p class="text-center text-gray-500 col-span-full">No courses available yet.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-400 text-sm mt-8">
+      <p>Your collaborative learning platform. All courses are public.</p>
+    </footer>
+  </main>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='java/create_course.js') }}"></script>
+</body>
+</html>

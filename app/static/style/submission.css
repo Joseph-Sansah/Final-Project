@@ -1,0 +1,320 @@
+/* Add this to your existing style.css file */
+
+/* File Input Styling (for submit_assignment.html) */
+.file-input {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-top: 0.5rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #f9f9f9; /* Light background for file input */
+    cursor: pointer;
+}
+
+.file-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    outline: none;
+}
+
+/* Table Styling (for assignment_submissions.html) */
+.table-responsive {
+    overflow-x: auto; /* Makes table scrollable on small screens */
+    width: 100%;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse; /* Removes space between table cells */
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 12px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensures rounded corners apply to content */
+}
+
+.data-table th,
+.data-table td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #eee; /* Light separator */
+    text-align: left;
+    vertical-align: middle;
+}
+
+.data-table th {
+    background-color: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #fdfdfd; /* Subtle zebra striping */
+}
+
+.data-table tbody tr:hover {
+    background-color: #f0f0f0; /* Hover effect for rows */
+    transition: background-color 0.2s ease;
+}
+
+/* Status Badges */
+.status-submitted {
+    background-color: #e0f7fa; /* Light cyan */
+    color: #007bb2;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.status-under-review {
+    background-color: #fffde7; /* Light yellow */
+    color: #fbc02d;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.status-feedback-provided {
+    background-color: #e8f5e9; /* Light green */
+    color: #388e3c;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.status-graded {
+    background-color: #e3f2fd; /* Light blue */
+    color: #1976d2;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+/* Small button for table actions */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-info {
+    background-color: #17a2b8; /* Bootstrap info blue */
+    color: #fff;
+    border: none;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    /* Ensure table headers are visible and stack if needed */
+    .data-table thead {
+        display: none; /* Hide table headers on small screens */
+    }
+
+    .data-table, .data-table tbody, .data-table tr, .data-table td {
+        display: block; /* Make table elements behave like blocks */
+        width: 100%;
+    }
+
+    .data-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        padding: 1rem;
+    }
+
+    .data-table td {
+        text-align: right;
+        padding-left: 50%; /* Space for pseudo-element label */
+        position: relative;
+    }
+
+    .data-table td::before {
+        content: attr(data-label); /* Use data-label attribute for header */
+        position: absolute;
+        left: 10px;
+        width: calc(50% - 20px);
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: var(--color-text-dark);
+    }
+}
+
+
+/* Add this to your existing style.css file */
+
+/* Styles for the criterion item in define_review_criteria.html */
+.criterion-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.criterion-item label {
+    margin-bottom: 0; /* Override default label margin for inline display */
+}
+
+.criterion-item input[type="text"],
+.criterion-item input[type="number"] {
+    /* Inherits most styles from general input rules */
+    margin-top: 0.3rem; /* Small margin below label */
+}
+
+.criterion-item .btn-danger {
+    background-color: #dc3545; /* Red for remove button */
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex; /* For icon and text alignment */
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+}
+
+.criterion-item .btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Small width for max score input on larger screens */
+@media (min-width: 640px) { /* Tailwind's sm breakpoint */
+    .criterion-item input[type="number"].w-sm-24 {
+        width: 6rem; /* Equivalent to Tailwind's w-24 */
+    }
+}
+
+
+/* Add this to your existing style.css file */
+
+/* Form Select (Dropdown) Styling */
+.form-select {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-top: 0.5rem;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    -webkit-appearance: none; /* Remove default arrow on WebKit browsers */
+    -moz-appearance: none;    /* Remove default arrow on Firefox */
+    appearance: none;         /* Remove default arrow */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c5ce7%22%20d%3D%22M287%20197.8L147.2%2058%207.4%20197.8c-9.7%209.7-9.7%2025.4%200%2035.1s25.4%209.7%2035.1%200L147.2%20128.3l104.7%20104.6c9.7%209.7%2025.4%209.7%2035.1%200s9.7-25.4%200-35.1z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    background-size: 0.8em;
+}
+
+.form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    outline: none;
+}
+
+/* Form Textarea Styling */
+.form-textarea {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-top: 0.5rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 80px; /* Minimum height for textareas */
+}
+
+.form-textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    outline: none;
+}
+
+/* Small Buttons (for table actions, etc.) */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.btn-sm:hover {
+    transform: translateY(-1px);
+}
+
+/* Specific colors for btn-danger (Unassign) */
+.btn-danger {
+    background-color: #dc3545; /* Red for danger actions */
+    color: #fff;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+
+.status-pending {
+    background-color: #ffe0b2; 
+    color: #ef6c00;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.status-completed {
+    background-color: #e8f5e9; /* Light green */
+    color: #388e3c;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+/* Flex utility for buttons */
+.flex {
+    display: flex;
+}
+.gap-4 {
+    gap: 1rem; /* 16px */
+}
+.mt-6 {
+    margin-top: 1.5rem; /* 24px */
+}
+
+/* Responsive adjustments for select/textarea */
+@media (max-width: 640px) {
+    .form-select, .form-textarea, .form-input {
+        font-size: 0.95rem; /* Slightly smaller font on small screens */
+        padding: 0.75rem;
+    }
+}
+

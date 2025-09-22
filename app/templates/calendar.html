@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar {{ year }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/calender.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <h1>📅 Calendar for {{ year }} (Role: {{ session['role'] }})</h1>
+    <button onclick="openModal()"><i class="fas fa-plus"></i> Add Event</button>
+
+    {% for month in months %}
+        {% if month.month == current_month %}
+            <h2>{{ month.name }}</h2>
+            <table>
+                <tr>
+                    {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                        <th>{{ day }}</th>
+                    {% endfor %}
+                </tr>
+                {% for week in month.days %}
+                    <tr>
+                        {% for day in week %}
+                            {% if day != 0 %}
+                                {% set date_str = '{}-{:02d}-{:02d}'.format(year, month.month, day) %}
+                                {% set classes = [] %}
+                                {% if date_str == today %}
+                                    {% set _ = classes.append('today') %}
+                                {% endif %}
+                                {% if date_str in assignment_dates %}
+                                    {% set _ = classes.append('assignment-due') %}
+                                {% endif %}
+                                <td class="{{ ' '.join(classes) }}" onclick="openDayModal('{{ date_str }}')">
+                                    <strong>{{ day }}</strong>
+                                    {% if date_str in events %}
+                                        <div class="event">{{ events[date_str] }}</div>
+                                    {% endif %}
+                                </td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Add Event Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-calendar-plus"></i> Add Event</h3>
+            <form id="eventForm">
+                <input type="text" name="title" placeholder="Title" required><br><br>
+                <textarea name="description" placeholder="Description"></textarea><br><br>
+                <input type="date" name="event_date" required><br><br>
+                <button type="submit">Submit</button>
+                <button type="button" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Day Events Modal -->
+    <div id="dayModal" class="modal">
+        <div class="modal-content">
+            <h3>Events on <span id="modalDate"></span></h3>
+            <div id="dayEvents"></div>
+            <button onclick="closeDayModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('eventModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').style.display = 'none';
+        }
+
+        function openDayModal(dateStr) {
+            document.getElementById('modalDate').textContent = dateStr;
+            document.getElementById('dayEvents').innerHTML = 'Loading...';
+
+            fetch('/get_day_events', {
+                method: 'POST',
+                body: new URLSearchParams({ date: dateStr })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.events.length === 0) {
+                        document.getElementById('dayEvents').innerHTML = '<p>No events.</p>';
+                    } else {
+                        let html = '<ul>';
+                        data.events.forEach(event => {
+                            html += `<li><strong>${event.title}</strong>: ${event.description || 'No description'}</li>`;
+                        });
+                        html += '</ul>';
+                        document.getElementById('dayEvents').innerHTML = html;
+                    }
+                } else {
+                    document.getElementById('dayEvents').innerHTML = `<p>Error: ${data.message}</p>`;
+                }
+            });
+
+            document.getElementById('dayModal').style.display = 'block';
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModal').style.display = 'none';
+        }
+
+        document.getElementById('eventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/add_event_ajax', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Event added!');
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert('Error adding event.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | CollaboLearn</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/register.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    /* Extra inline enhancements (you can move these into CSS file later) */
+    .error-msg {
+      display: none;
+      color: #e63946;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<main class="form-container">
+  <header>
+    <h2><i class="fas fa-user-plus"></i> Create Your Account</h2>
+    <p>Join CollaboLearn today and start learning together.</p>
+  </header>
+
+  <form id="register-form" action="{{ url_for('main.register') }}" method="POST" autocomplete="off" novalidate>
+
+    <!-- Full Name -->
+    <div class="input-group">
+      <label for="full_name" class="visually-hidden"></label>
+      <i class="fas fa-user"></i>
+      <input type="text" id="full_name" name="full_name" placeholder="Full Name" required>
+    </div>
+
+    <!-- Email -->
+    <div class="input-group">
+      <label for="email" class="visually-hidden"></label>
+      <i class="fas fa-envelope"></i>
+      <input type="email" id="email" name="email" placeholder="Email" required>
+    </div>
+
+    <!-- Password -->
+    <div class="input-group">
+      <label for="password" class="visually-hidden"></label>
+      <i class="fas fa-lock"></i>
+      <input type="password" id="password" name="password" placeholder="Password" minlength="6" required>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="input-group">
+      <label for="confirm-password" class="visually-hidden"></label>
+      <i class="fas fa-lock"></i>
+      <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm Password" required>
+    </div>
+
+    <!-- Role Selection -->
+    <div class="input-group">
+      <label for="role" class="visually-hidden"></label>
+      <i class="fas fa-user-tag"></i>
+      <select id="role" name="role" required>
+        <option value="">Select Role</option>
+        <option value="student">Student</option>
+        <option value="admin">Administrator</option>
+      </select>
+    </div>
+
+    <!-- Admin Code -->
+    <div class="input-group" id="admin-code-div" style="display:none;">
+      <label for="admin_code" class="visually-hidden"></label>
+      <i class="fas fa-key"></i>
+      <input type="text" id="admin_code" name="admin_code" placeholder="Enter Admin Code">
+    </div>
+
+    <!-- Error message -->
+    <p id="password-error" class="error-msg">
+      <i class="fas fa-exclamation-circle"></i> Passwords do not match.
+    </p>
+
+    <!-- Submit -->
+    <button type="submit" class="btn-register">
+      <i class="fas fa-user-check"></i> Register
+    </button>
+  </form>
+
+  <footer class="register-link">
+    <p>Already have an account? 
+      <a href="{{ url_for('main.login') }}">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </a>
+    </p>
+  </footer>
+</main>
+
+<!-- JS Validation -->
+<script>
+  const roleSelect = document.getElementById('role');
+  const adminCodeDiv = document.getElementById('admin-code-div');
+  const form = document.getElementById('register-form');
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirm-password');
+  const errorMsg = document.getElementById('password-error');
+
+  // Toggle admin code field
+  roleSelect.addEventListener('change', () => {
+    adminCodeDiv.style.display = (roleSelect.value === 'admin') ? 'flex' : 'none';
+  });
+
+  // Password match validation
+  form.addEventListener('submit', (e) => {
+    if (passwordInput.value !== confirmPasswordInput.value) {
+      e.preventDefault();
+      errorMsg.style.display = 'block';
+      confirmPasswordInput.focus();
+    } else {
+      errorMsg.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

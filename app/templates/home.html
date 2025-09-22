@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Peer Feedback | Collaborative Learning Platform</title>
+     <link rel="stylesheet" href="{{ url_for('static', filename='style/home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>CollaboLearn</h1>
+        </div>
+        <a href="{{ url_for('student_dashboard') }}" class="nav-link">Dashboard</a>
+    </nav>
+    <main class="feedback-main">
+        <h2>Peer Feedback</h2>
+        <section class="feedback-form-section">
+            <h3>Submit Feedback</h3>
+            <form id="feedback-form" method="POST" action="{{ url_for('feedbacks') }}" autocomplete="off">
+                <input type="text" name="reviewee" id="reviewee" placeholder="Student Name or ID" required>
+                <textarea name="comments" id="comments" placeholder="Your feedback..." required></textarea>
+                <select name="score" id="score" required>
+                    <option value="">Score</option>
+                    <option value="5">Excellent (5)</option>
+                    <option value="4">Very Good (4)</option>
+                    <option value="3">Good (3)</option>
+                    <option value="2">Fair (2)</option>
+                    <option value="1">Needs Improvement (1)</option>
+                </select>
+                <button type="submit">Submit Feedback</button>
+            </form>
+            <p id="feedback-success" class="success-msg" style="display:none;">Feedback submitted!</p>
+        </section>
+        <section class="feedback-list-section">
+            <h3>Recent Feedback</h3>
+            <ul id="feedback-list">
+                {% if feedbacks %}
+                    {% for feedback in feedbacks %}
+                        <li>
+                            <strong>{{ feedback.reviewer_name }}</strong> to <strong>{{ feedback.reviewee_name }}</strong>:
+                            <span class="score">Score: {{ feedback.score }}</span>
+                            <p>{{ feedback.comments }}</p>
+                            <span class="date">{{ feedback.created_at }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li>No feedback submitted yet.</li>
+                {% endif %}
+            </ul>
+        </section>
+    </main>
+    <script src="{{ url_for('static', filename='java/feedbacks.js') }}"></script>
+</body>
+</html>

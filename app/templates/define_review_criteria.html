@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Define Review Criteria - CollaboLearn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>CollaboLearn</h1>
+        </div>
+        <a href="{{ url_for('main.manage_assignments') }}" class="nav-link">← Back to Assignments</a>
+    </nav>
+
+    {# Flash Messages Container #}
+    <div class="flash-message-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="profile-container single-column"> {# Using 'single-column' for a simpler layout #}
+        <section class="profile-form"> {# Reusing profile-form class for consistent styling #}
+            <h3 class="text-center">Define Review Criteria for "{{ assignment.title }}"</h3>
+            <p class="text-gray-600 text-center mb-6">Course: {{ assignment.course_name }}</p>
+
+            <form method="POST" action="{{ url_for('main.define_review_criteria', assignment_id=assignment.id) }}" class="space-y-4">
+
+                <div id="criteria-list" class="space-y-4">
+                    {% if existing_criteria %}
+                        {% for criterion in existing_criteria %}
+                            <div class="criterion-item flex flex-col sm:flex-row sm:items-end gap-2 p-3 border border-gray-200 rounded-md bg-gray-50">
+                                <input type="hidden" name="criterion_id" value="{{ criterion.id }}">
+                                <label class="flex-grow">
+                                    Criterion Text
+                                    <input type="text" name="criterion_text" value="{{ criterion.criterion_text }}" placeholder="e.g., Clarity of Argument" required />
+                                </label>
+                                <label class="w-full sm:w-auto">
+                                    Max Score
+                                    <input type="number" name="max_score" value="{{ criterion.max_score }}" min="1" max="10" class="w-full sm:w-24" required />
+                                </label>
+                                <button type="button" class="btn-sm btn-danger remove-criterion-btn">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 text-center">No criteria defined yet. Click "Add Criterion" to start.</p>
+                    {% endif %}
+                </div>
+
+                <button type="button" id="add-criterion-btn" class="btn-secondary w-full">
+                    <i class="fas fa-plus"></i> Add Criterion
+                </button>
+
+                <button type="submit" class="btn-primary update-btn">
+                    Save Criteria
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const criteriaList = document.getElementById('criteria-list');
+            const addCriterionBtn = document.getElementById('add-criterion-btn');
+
+            function addCriterionItem(criterionId = '', criterionText = '', maxScore = 5) {
+                const div = document.createElement('div');
+                div.className = 'criterion-item flex flex-col sm:flex-row sm:items-end gap-2 p-3 border border-gray-200 rounded-md bg-gray-50';
+                div.innerHTML = `
+                    <input type="hidden" name="criterion_id" value="${criterionId}">
+                    <label class="flex-grow">
+                        Criterion Text
+                        <input type="text" name="criterion_text" value="${criterionText}" placeholder="e.g., Clarity of Argument" required />
+                    </label>
+                    <label class="w-full sm:w-auto">
+                        Max Score
+                        <input type="number" name="max_score" value="${maxScore}" min="1" max="10" class="w-full sm:w-24" required />
+                    </label>
+                    <button type="button" class="btn-sm btn-danger remove-criterion-btn">
+                        <i class="fas fa-times"></i> Remove
+                    </button>
+                `;
+                criteriaList.appendChild(div);
+                updateNoCriteriaMessage();
+            }
+
+            function removeCriterionItem(button) {
+                button.closest('.criterion-item').remove();
+                updateNoCriteriaMessage();
+            }
+
+            function updateNoCriteriaMessage() {
+                const message = criteriaList.querySelector('.text-gray-500');
+                if (criteriaList.querySelectorAll('.criterion-item').length === 0) {
+                    if (!message) {
+                        const p = document.createElement('p');
+                        p.className = 'text-gray-500 text-center';
+                        p.textContent = 'No criteria defined yet. Click "Add Criterion" to start.';
+                        criteriaList.appendChild(p);
+                    }
+                } else {
+                    if (message) {
+                        message.remove();
+                    }
+                }
+            }
+
+            addCriterionBtn.addEventListener('click', () => addCriterionItem());
+
+            criteriaList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-criterion-btn') || e.target.closest('.remove-criterion-btn')) {
+                    removeCriterionItem(e.target.closest('.remove-criterion-btn'));
+                }
+            });
+
+            // Initial check for message on page load
+            updateNoCriteriaMessage();
+        });
+    </script>
+</body>
+</html>

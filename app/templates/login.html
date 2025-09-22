@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | CollaboLearn</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/login.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    /* Optional small inline touchup */
+    .flash-message {
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .flash-success { background: #d1fae5; color: #065f46; }
+    .flash-error { background: #fee2e2; color: #991b1b; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Flash Messages -->
+  {% if flashes %}
+    <div class="flash-wrapper" role="alert">
+      {% for category, message in flashes %}
+        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Login Form -->
+  <main class="form-container">
+    <header>
+      <h2><i class="fas fa-user"></i> Login</h2>
+      <p>Welcome back! Please enter your credentials.</p>
+    </header>
+
+    <form id="login-form" action="{{ url_for('main.login') }}" method="POST" autocomplete="off" novalidate>
+      <!-- Email -->
+      <div class="input-group">
+        <label for="email" class="visually-hidden"></label>
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="email" name="email" placeholder="Email Address" required>
+      </div>
+
+      <!-- Password -->
+      <div class="input-group password-wrapper">
+        <label for="password" class="visually-hidden"></label>
+        <i class="fas fa-lock"></i>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+          <i class="fas fa-eye"></i>
+        </button>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-login">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+    </form>
+
+    <!-- Links -->
+    <footer>
+      <p class="register-link">
+        Don’t have an account? <a href="{{ url_for('main.register') }}">Register</a>
+      </p>
+      <p class="forgot-password">
+        <a href="#" onclick="openResetModal()">Forgot Password?</a>
+      </p>
+    </footer>
+  </main>
+
+  <!-- Forgot Password Modal -->
+  <div id="resetModal" class="modal" aria-hidden="true" role="dialog">
+    <div class="modal-content">
+      <button class="close" onclick="closeResetModal()" aria-label="Close modal">&times;</button>
+      <h3>Reset Password</h3>
+      <form action="{{ url_for('main.forgot_password') }}" method="POST">
+        <label for="reset_email" class="visually-hidden">Reset Email</label>
+        <input type="email" id="reset_email" name="reset_email" placeholder="Enter your email" required>
+        <button type="submit">Send Reset Link</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Flash fadeout
+      const flashMessages = document.querySelectorAll('.flash-message');
+      flashMessages.forEach(msg => {
+        setTimeout(() => msg.style.display = 'none', 5000);
+      });
+
+      // Password toggle
+      const toggleBtn = document.querySelector('.toggle-password');
+      const passwordInput = document.getElementById('password');
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        toggleBtn.firstElementChild.classList.toggle('fa-eye-slash');
+      });
+    });
+
+    // Modal open/close
+    function openResetModal() {
+      document.getElementById('resetModal').style.display = 'block';
+    }
+    function closeResetModal() {
+      document.getElementById('resetModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

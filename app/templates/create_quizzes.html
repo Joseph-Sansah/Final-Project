@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Quiz | CollaboLearn</title>
+
+  <!-- Tailwind CSS + Fonts + Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #b4effa;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col font-[Inter]">
+
+  <!-- Navigation Bar -->
+  <header class="bg-indigo-700 text-white shadow-md">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-4">
+        <i class="fas fa-chalkboard-teacher text-xl"></i>
+        <span class="text-xl font-bold">CollaboLearn</span>
+        <span class="hidden sm:inline-block text-sm font-medium text-indigo-200">Instructor Panel</span>
+      </div>
+      <div class="flex items-center space-x-6">
+        <a href="{{ url_for('main.instructor_dashboard') }}" class="hover:text-gray-200 flex items-center space-x-2">
+          <i class="fas fa-home"></i><span>Dashboard</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-6 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Quiz Creation Section -->
+      <section class="lg:col-span-2 bg-white shadow-lg rounded-xl p-6 md:p-8">
+        <h2 class="text-2xl font-bold mb-6 border-b pb-3">📝 Create a New Quiz</h2>
+
+        <form id="quiz-form" method="POST" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="quiz_title" class="block text-sm font-medium text-gray-700">Quiz Title</label>
+              <input type="text" name="quiz_title" id="quiz_title" required
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 focus:border-indigo-500"/>
+            </div>
+            <div>
+              <label for="course_id" class="block text-sm font-medium text-gray-700">Select Course</label>
+              <select name="course_id" id="course_id" required
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 bg-white focus:border-indigo-500">
+                {% for course in courses %}
+                  <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div id="questions-container" class="space-y-6"></div>
+
+          <div class="flex justify-center">
+            <button type="button" id="add-question-btn"
+                    class="px-6 py-3 rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-md">
+              <i class="fas fa-plus mr-2"></i> Add New Question
+            </button>
+          </div>
+
+          <input type="hidden" id="quiz-data-input" name="quiz_data"/>
+
+          <div class="pt-6 border-t">
+            <button type="submit"
+                    class="w-full py-4 px-6 rounded-md font-bold text-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-md">
+              <i class="fas fa-check mr-2"></i> Create Quiz
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Existing Quizzes Sidebar -->
+      <aside class="bg-white shadow-lg rounded-xl p-6 md:p-8">
+        <h2 class="text-xl font-bold mb-4">📚 Existing Quizzes</h2>
+        <ul class="space-y-3 text-gray-700">
+          {% if quizzes %}
+            {% for quiz in quizzes %}
+              <li class="p-4 bg-gray-50 rounded-md flex justify-between items-center">
+                <span>
+                  <span class="font-semibold">{{ quiz.title }}</span>
+                  <span class="text-gray-500">— {{ quiz.course_name }}</span>
+                </span>
+                <form method="POST" action="{{ url_for('main.delete_quiz', quiz_id=quiz.id) }}">
+                  <button type="submit"
+                          class="text-red-600 hover:text-red-800 font-medium flex items-center space-x-1">
+                    <i class="fas fa-trash-alt"></i><span>Delete</span>
+                  </button>
+                </form>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="text-gray-500 italic">No quizzes created yet.</li>
+          {% endif %}
+        </ul>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="modal-title" class="text-xl font-bold">Message</h3>
+        <button id="modal-close-btn" class="text-gray-400 hover:text-gray-600">&times;</button>
+      </div>
+      <p id="modal-message" class="text-gray-700"></p>
+    </div>
+  </div>
+
+  <!-- Quiz Builder Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const questionsContainer = document.getElementById('questions-container');
+      const addQuestionBtn = document.getElementById('add-question-btn');
+      const quizForm = document.getElementById('quiz-form');
+      const quizDataInput = document.getElementById('quiz-data-input');
+      let questionCounter = 0;
+
+      const createQuestionBlock = (id) => `
+        <div id="question-block-${id}" class="question-block bg-gray-50 p-6 rounded-lg shadow-sm space-y-4">
+          <div class="flex justify-between border-b pb-2 mb-2">
+            <h3 class="text-lg font-semibold">Question ${id}</h3>
+            <button type="button" data-question-id="${id}" 
+              class="remove-question-btn text-red-500 hover:text-red-700">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Question Text</label>
+            <textarea class="question-text-input mt-1 w-full rounded-md border p-3" rows="2" required></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Question Type</label>
+            <select class="question-type-select mt-1 w-full rounded-md border p-3 bg-white">
+              <option value="mcq">Multiple Choice</option>
+              <option value="open_ended">Open Ended</option>
+            </select>
+          </div>
+          <div class="mcq-options-block space-y-2">
+            <div class="flex items-center space-x-2">
+              <input type="radio" name="correct_option_${id}" value="1" checked>
+              <input type="text" class="option-text-input flex-grow rounded-md border p-2" placeholder="Option 1" required>
+            </div>
+            <div class="flex items-center space-x-2">
+              <input type="radio" name="correct_option_${id}" value="2">
+              <input type="text" class="option-text-input flex-grow rounded-md border p-2" placeholder="Option 2" required>
+            </div>
+          </div>
+          <div class="open-ended-answer-block hidden">
+            <label class="block text-sm font-medium">Correct Answer</label>
+            <textarea class="open-ended-answer-input mt-1 w-full rounded-md border p-3"></textarea>
+          </div>
+        </div>
+      `;
+
+      const addQuestion = () => {
+        questionCounter++;
+        const block = document.createElement('div');
+        block.innerHTML = createQuestionBlock(questionCounter);
+        questionsContainer.appendChild(block);
+      };
+
+      addQuestion(); // Start with one question
+      addQuestionBtn.addEventListener('click', addQuestion);
+
+      questionsContainer.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-question-btn')) {
+          const block = e.target.closest('.question-block');
+          block.remove();
+        }
+      });
+
+           // Toggle question type visibility
+      questionsContainer.addEventListener('change', (e) => {
+        if (e.target.classList.contains('question-type-select')) {
+          const block = e.target.closest('.question-block');
+          const mcq = block.querySelector('.mcq-options-block');
+          const openEnded = block.querySelector('.open-ended-answer-block');
+          if (e.target.value === 'mcq') {
+            mcq.classList.remove('hidden');
+            openEnded.classList.add('hidden');
+          } else {
+            mcq.classList.add('hidden');
+            openEnded.classList.remove('hidden');
+          }
+        }
+      });
+
+      // Serialize quiz data before submission
+      quizForm.addEventListener('submit', () => {
+        const quizTitle = document.getElementById('quiz_title').value;
+        const courseId = document.getElementById('course_id').value;
+        const questions = [];
+
+        questionsContainer.querySelectorAll('.question-block').forEach((block) => {
+          const questionText = block.querySelector('.question-text-input').value;
+          const questionType = block.querySelector('.question-type-select').value;
+          const questionObj = {
+            question_text: questionText,
+            question_type: questionType
+          };
+
+          if (questionType === 'mcq') {
+            const options = [...block.querySelectorAll('.option-text-input')].map(opt => opt.value);
+            const correctIndex = parseInt(block.querySelector('input[type="radio"]:checked').value) - 1;
+            questionObj.options = options;
+            questionObj.correct_answer_index = correctIndex;
+          } else {
+            const correctAnswer = block.querySelector('.open-ended-answer-input').value;
+            questionObj.correct_answer = correctAnswer;
+          }
+
+          questions.push(questionObj);
+        });
+
+        quizDataInput.value = JSON.stringify({
+          quiz_title: quizTitle,
+          course_id: courseId,
+          questions: questions
+        });
+      });
+
+      // Modal close functionality
+      const modal = document.getElementById('modal');
+      const modalCloseBtn = document.getElementById('modal-close-btn');
+      modalCloseBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>

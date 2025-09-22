@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monitor Discussions | CollaboLearn</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/monitor_discussions.css') }}">
+</head>
+<body>
+  <header class="header">
+    <h1>Discussion Monitor</h1>
+    <a href="{{ url_for('main.instructor_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+  </header>
+
+  <section class="discussion-container">
+    {% if discussions %}
+      {% for discussion in discussions %}
+        <div class="discussion-card">
+          <div class="discussion-header">
+            <h3>{{ discussion.title }}</h3>
+            <p class="course-info">Course: {{ discussion.course_title }}</p>
+          </div>
+          <div class="discussion-body">
+            <p><strong>Started by:</strong> {{ discussion.user_name }} | {{ discussion.created_at.strftime('%d %b %Y, %H:%M') }}</p>
+            <p>{{ discussion.initial_message[:200] }}{% if discussion.initial_message|length > 200 %}...{% endif %}</p>
+          </div>
+          <div class="discussion-footer">
+            <span>{{ discussion.reply_count }} replies</span>
+            <a href="{{ url_for('main.view_discussion', discussion_id=discussion.id) }}" class="view-btn">View Thread</a>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="no-discussions">No discussions available to monitor.</p>
+    {% endif %}
+  </section>
+</body>
+</html>

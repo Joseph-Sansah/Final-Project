@@ -1,0 +1,304 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CollaboLearn | Discussion & Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .chat-bubble-wrapper:hover .delete-btn,
+    .discussion-item:hover .delete-btn,
+    .comment-item:hover .delete-btn { display: flex; }
+    .delete-btn { display: none; }
+
+    /* Pulsing glow animation */
+    @keyframes pulse-glow {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px 5px rgba(37, 99, 235, 0.3);
+      }
+    }
+    .animate-pulse-glow {
+      animation: pulse-glow 1.5s infinite;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow px-4 md:px-6 py-3 flex justify-between items-center">
+    <div class="text-lg md:text-xl font-bold text-blue-600">CollaboLearn</div>
+    <div class="flex items-center space-x-4">
+      <button id="sidebarToggle" class="md:hidden text-gray-600 hover:text-blue-600">
+        <i class="fas fa-users"></i>
+      </button>
+      <button id="chatToggle" class="md:hidden text-gray-600 hover:text-blue-600">
+        <i class="fas fa-comments"></i>
+      </button>
+      <a href="{{ url_for('main.student_dashboard') }}" class="text-gray-600 hover:text-blue-600">
+        <i class="fas fa-home text-lg"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar: Active Students -->
+    <aside id="sidebar" class="w-full md:w-72 bg-white border-r border-gray-200 p-4 overflow-y-auto no-scrollbar hidden md:block">
+      <h3 class="text-lg font-bold text-gray-700 mb-4">Active Students</h3>
+      {% for user in active_users %}
+        <div class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 cursor-pointer mb-2">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <div class="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-bold">
+                {{ user.name[0] }}
+              </div>
+              <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white {{ 'bg-green-500' if user.status == 'active' else 'bg-gray-400' }}"></span>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-800">{{ user.name }}</div>
+              <div class="text-xs text-gray-500">{{ 'Active now' if user.status == 'active' else 'Offline' }}</div>
+            </div>
+          </div>
+          <button class="text-blue-600 hover:text-blue-800" onclick="openPeerChat({{ user.id }}, '{{ user.name }}')">
+            <i class="fa-solid fa-comment-dots"></i>
+          </button>
+        </div>
+      {% endfor %}
+    </aside>
+
+    <!-- Middle Panel: Discussion Board -->
+    <main class="flex flex-col flex-1 bg-white shadow-lg">
+      <header class="flex items-center justify-between px-4 md:px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-800">💬 Group Discussion Board</h2>
+      </header>
+
+      <section id="discussion-feed" class="flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-4 no-scrollbar">
+        {% for post in suggestions %}
+          <div class="bg-gray-50 border rounded-lg p-4 shadow-sm discussion-item relative" data-id="{{ post.id }}">
+            <div class="flex justify-between items-center">
+              <div class="font-semibold text-gray-800">{{ post.giver_name }}</div>
+              <span class="text-xs text-gray-500">{{ post.timestamp }}</span>
+            </div>
+            <p class="text-gray-700 mt-2">{{ post.suggestion_text }}</p>
+            <div class="text-xs text-gray-500 mt-1">👍 {{ post.likes }} likes</div>
+
+            {% if post.giver_id == session['user_id'] %}
+              <button class="delete-btn absolute top-2 right-2 text-red-500 hover:text-red-700" onclick="deleteDiscussionItem('{{ post.id }}', 'suggestion', this)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            {% endif %}
+
+            <div class="mt-3 pl-4 border-l border-gray-300">
+              {% if post.comments %}
+                {% for c in post.comments %}
+                  <div class="text-sm text-gray-700 mb-1 comment-item relative" data-id="{{ c.id }}">
+                    <span class="font-medium">{{ c.commenter_name }}</span>: {{ c.text }}
+                    <span class="text-xs text-gray-400">({{ c.timestamp }})</span>
+                    {% if c.commenter_id == session['user_id'] %}
+                      <button class="delete-btn absolute right-0 top-0 text-red-500 hover:text-red-700" onclick="deleteDiscussionItem('{{ c.id }}', 'comment', this)">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="text-sm text-gray-500">No replies yet. Be the first!</div>
+              {% endif %}
+
+              <form method="POST" action="/comment_feedback/{{ post.id }}" class="flex items-center gap-2 mt-2">
+                <input name="comment" type="text" placeholder="Write a reply..." 
+                       class="flex-1 p-2 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-blue-500"/>
+                <button type="submit" class="text-blue-600 hover:text-blue-800">
+                  <i class="fa-solid fa-paper-plane"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </section>
+
+      <footer class="px-4 md:px-6 py-4 border-t border-gray-200 bg-white">
+        <form method="POST" action="/post_suggestion" class="flex items-center gap-2">
+          <input name="suggestion" type="text" placeholder="Start a new discussion topic..." 
+                 class="flex-1 p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500"/>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      </footer>
+    </main>
+
+    <!-- Right Panel: Peer Chat -->
+    <aside id="chatPanel" class="w-full md:w-96 bg-white border-l border-gray-200 flex flex-col hidden md:flex">
+      <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-lg font-bold text-gray-800">👥 Peer Chat</h2>
+      </div>
+      
+      <div id="peer-chat-window" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar bg-gray-100">
+        <div class="text-center text-sm text-gray-500 mt-10">Select a peer to start chatting...</div>
+      </div>
+
+      <!-- New messages button -->
+      <button id="newMessagesBtn" 
+              class="hidden fixed bottom-20 right-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg animate-pulse-glow z-50">
+        New Messages ↓ (<span id="unreadCount">0</span>)
+      </button>
+
+      <div class="px-4 py-3 border-t border-gray-200 bg-white">
+        <form onsubmit="sendPeerMessage(event)" class="flex items-center gap-2">
+          <input id="peer-message-input" type="text" placeholder="Type your message..." 
+                 class="flex-1 p-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500"/>
+          <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded-full hover:bg-blue-700">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+  <!-- JS -->
+  <script>
+    let longPressTimer;
+    let activePeerId = null;
+    let lastMessageId = 0;
+    let unreadCount = 0;
+
+    // ----------------- DISCUSSION DELETION -----------------
+    async function deleteDiscussionItem(id, type, el) {
+      if (!confirm("Delete this " + type + "?")) return;
+      const endpoint = type === "suggestion" ? `/delete_suggestion/${id}` : `/delete_comment/${id}`;
+      const res = await fetch(endpoint, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        el.closest(type === "suggestion" ? ".discussion-item" : ".comment-item").remove();
+      } else {
+        alert(data.error || "Failed to delete.");
+      }
+    }
+
+    // ----------------- PEER CHAT -----------------
+    function renderMessage(m, isMine) {
+      lastMessageId = Math.max(lastMessageId, m.id);
+      return `
+        <div class="flex ${isMine ? "justify-end" : "justify-start"} chat-bubble-wrapper items-center gap-2">
+          <div class="${isMine ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"} 
+                      px-3 py-2 rounded-lg max-w-xs chat-bubble cursor-pointer"
+               data-id="${m.id}">
+            ${m.content}
+          </div>
+          ${isMine ? `<button class="delete-btn text-red-500 hover:text-red-700 hidden" onclick="deleteMessageById(${m.id}, this)">
+            <i class="fa-solid fa-trash"></i>
+          </button>` : ""}
+        </div>`;
+    }
+
+    function openPeerChat(peerId, peerName) {
+      activePeerId = peerId;
+      unreadCount = 0;
+      document.getElementById("unreadCount").innerText = 0;
+      document.getElementById("newMessagesBtn").classList.add("hidden");
+
+      const chatWindow = document.getElementById("peer-chat-window");
+      chatWindow.innerHTML = `<div class="text-center text-gray-500 text-sm mb-3">Chatting with <b>${peerName}</b></div>`;
+
+      fetch(`/peer_chat/${peerId}`)
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(m => {
+            const isMine = m.sender_id == sessionUserId;
+            chatWindow.innerHTML += renderMessage(m, isMine);
+          });
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        });
+    }
+
+    async function sendPeerMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById("peer-message-input");
+      const message = input.value.trim();
+      if (!message || !activePeerId) return;
+
+      const res = await fetch(`/send_peer_message/${activePeerId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ message })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        const chatWindow = document.getElementById("peer-chat-window");
+        chatWindow.innerHTML += renderMessage(data, true);
+        input.value = "";
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }
+    }
+
+    async function deleteMessageById(id, el) {
+      if (confirm("Delete this message?")) {
+        const res = await fetch(`/delete_peer_message/${id}`, { method: "DELETE" });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          el.closest(".chat-bubble-wrapper").remove();
+        } else {
+          alert(data.error || "Failed to delete message.");
+        }
+      }
+    }
+
+    // ----------------- POLLING FOR NEW MESSAGES -----------------
+    // Store the session user ID as a JS variable for reliable comparison
+    const sessionUserId = "{{ session['user_id']|default('') }}";
+
+    setInterval(() => {
+      if (!activePeerId) return;
+      fetch(`/fetch_new_messages/${activePeerId}/${lastMessageId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.length > 0) {
+            const chatWindow = document.getElementById("peer-chat-window");
+            data.forEach(m => {
+              const isMine = m.sender_id === sessionUserId;
+              chatWindow.innerHTML += renderMessage(m, isMine);
+            });
+
+            const nearBottom = chatWindow.scrollHeight - chatWindow.scrollTop - chatWindow.clientHeight < 50;
+            if (nearBottom) {
+              chatWindow.scrollTop = chatWindow.scrollHeight;
+            } else {
+              unreadCount += data.length;
+              document.getElementById("unreadCount").innerText = unreadCount;
+              document.getElementById("newMessagesBtn").classList.remove("hidden");
+            }
+          }
+        });
+    }, 3000);
+
+    document.getElementById("newMessagesBtn").addEventListener("click", () => {
+      const chatWindow = document.getElementById("peer-chat-window");
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+      unreadCount = 0;
+      document.getElementById("unreadCount").innerText = 0;
+      document.getElementById("newMessagesBtn").classList.add("hidden");
+    });
+
+    // ----------------- Sidebar & Chat Toggles -----------------
+    document.getElementById("sidebarToggle").addEventListener("click", () => {
+      document.getElementById("sidebar").classList.toggle("hidden");
+    });
+    document.getElementById("chatToggle").addEventListener("click", () => {
+      document.getElementById("chatPanel").classList.toggle("hidden");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+/* Typography & Layout */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+h1, h2, h3 {
+  font-weight: 700;
+  color: #111827;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+/* Sidebar: Student List */
+.student-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.student-card:hover {
+  background-color: #f3f4f6;
+}
+
+.student-info {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.student-avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: bold;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  border: 2px solid white;
+}
+
+.status-dot.active {
+  background-color: #10b981;
+}
+
+.status-dot.inactive {
+  background-color: #9ca3af;
+}
+
+/* Suggestion Cards */
+.suggestion-card {
+  background-color: #fffbea;
+  border-left: 4px solid #facc15;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.suggestion-meta {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+.comment-thread {
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #e5e7eb;
+}
+
+.comment {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.comment small {
+  color: #6b7280;
+}
+
+/* Chat Panel */
+.chat-bubble {
+  max-width: 70%;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.chat-bubble.you {
+  background-color: #3b82f6;
+  color: white;
+  align-self: flex-end;
+}
+
+.chat-bubble.peer {
+  background-color: #e5e7eb;
+  color: #1f2937;
+  align-self: flex-start;
+}
+
+.chat-meta {
+  font-size: 0.625rem;
+  text-align: right;
+  opacity: 0.6;
+  margin-top: 0.25rem;
+}
+
+/* Buttons */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.02);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Typing Indicator */
+#typing-indicator {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}

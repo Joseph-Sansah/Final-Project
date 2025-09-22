@@ -1,0 +1,31 @@
+<!-- templates/attempt_quiz.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ quiz.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/quizzes.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="quiz-form-container">
+        <h2>{{ quiz.title }}</h2>
+        <form method="POST" action="{{ url_for('main.submit_quiz', quiz_id=quiz.id) }}">
+            {% for question in questions %}
+                <div class="question-block">
+                    <p><strong>Q{{ loop.index }}: {{ question.text }}</strong></p>
+                    {% for opt in ['option1', 'option2', 'option3', 'option4'] %}
+                        {% if question[opt] %}
+                            <label>
+                                <input type="radio" name="q{{ question.id }}" value="{{ opt }}" required>
+                                {{ question[opt] }}
+                            </label><br>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit">Submit Quiz</button>
+        </form>
+    </div>
+</body>
+</html>

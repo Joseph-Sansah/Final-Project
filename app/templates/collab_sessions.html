@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Collaboration | CollaboLearn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <!-- Page Wrapper -->
+  <div class="max-w-6xl mx-auto p-6 space-y-8">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-blue-600">Live Collaboration Sessions</h1>
+      <a href="{{ url_for('main.student_dashboard') }}" class="text-gray-600 hover:text-blue-600">
+        <i class="fas fa-home text-lg"></i> Back to Dashboard
+      </a>
+    </header>
+
+    <!-- Active Sessions -->
+    <section class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold mb-4">Ongoing & Upcoming Sessions</h2>
+
+      {% if collab_sessions %}
+        <ul class="space-y-4">
+          {% for s in collab_sessions %}
+            <li class="border rounded-lg p-4 flex justify-between items-center hover:bg-gray-50 transition">
+              <div>
+                <h3 class="text-lg font-bold">{{ s.topic }}</h3>
+                <p class="text-sm text-gray-600">⏰ {{ s.start_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p class="text-sm text-gray-500">🎯 Skill Focus: {{ s.skill_focus or 'General' }}</p>
+                <p class="text-sm text-green-600">👥 Online: <span id="online-{{ s.id }}">0</span></p>
+              </div>
+              <div class="flex gap-2">
+                <a href="{{ url_for('main.live_session', session_id=s.id) }}" 
+                   class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                  Join
+                </a>
+                {% if s.created_by == current_user.id %}
+                <a href="{{ url_for('main.delete_session', session_id=s.id) }}" 
+                   class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                  Delete
+                </a>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-gray-500">No sessions available right now. Create one below!</p>
+      {% endif %}
+    </section>
+
+    <!-- Create Session -->
+    <section class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold mb-4">Create a New Session</h2>
+      <form method="POST" action="{{ url_for('main.create_session') }}" class="space-y-4">
+        <div>
+          <label for="topic" class="block text-sm font-medium text-gray-700">Session Topic</label>
+          <input type="text" id="topic" name="topic" placeholder="Enter session topic" required 
+                 class="w-full p-2 border rounded">
+        </div>
+        <div>
+          <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
+          <input type="datetime-local" id="start_time" name="start_time" required 
+                 class="w-full p-2 border rounded">
+        </div>
+        <div>
+          <label for="skill_focus" class="block text-sm font-medium text-gray-700">Skill Focus (Optional)</label>
+          <input type="text" id="skill_focus" name="skill_focus" placeholder="E.g., Problem Solving, Teamwork" 
+                 class="w-full p-2 border rounded">
+        </div>
+        <button type="submit" 
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          Create Session
+        </button>
+      </form>
+    </section>
+
+    <!-- Collaboration Tips -->
+    <section class="bg-blue-50 shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold mb-4 text-blue-600">Collaboration Tips</h2>
+      <ul class="list-disc pl-6 text-gray-700 space-y-2">
+        <li>Be respectful and inclusive during discussions.</li>
+        <li>Prepare your materials before joining a session.</li>
+        <li>Encourage everyone to participate actively.</li>
+        <li>Use the chat feature to share links and resources.</li>
+        <li>Set clear goals for each session to stay focused.</li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Socket.IO for Presence -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    socket.emit("join_collab_dashboard");
+    socket.on("update_presence", data => {
+      for (const sessionId in data) {
+        const el = document.getElementById(`online-${sessionId}`);
+        if (el) el.textContent = data[sessionId];
+      }
+    });
+  </script>
+</body>
+</html>

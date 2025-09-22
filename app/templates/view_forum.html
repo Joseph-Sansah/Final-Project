@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ forum.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Student Panel</h2>
+        </div>
+        <ul>
+            <li><a href="{{ url_for('main.student_dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('main.forum_list') }}"><i class="fas fa-comments"></i> Forums</a></li>
+            <li><a href="{{ url_for('main.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1>{{ forum.title }}</h1>
+            <p>{{ forum.description }}</p>
+        </header>
+
+        <!-- New Post Form -->
+        <section class="new-post">
+            <form method="POST">
+                <textarea name="content" rows="3" placeholder="Share your thoughts..." required></textarea>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Post</button>
+            </form>
+        </section>
+
+        <!-- Forum Posts -->
+        <section class="posts">
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="post">
+                        <div class="post-header">
+                            <strong>{{ post.author_name }}</strong>
+                            <span>{{ post.created_at.strftime('%B %d, %Y %I:%M %p') }}</span>
+                        </div>
+                        <p>{{ post.content }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No posts yet. Start the conversation!</p>
+            {% endif %}
+        </section>
+    </main>
+</div>
+
+<style>
+    .new-post textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        resize: vertical;
+        margin-bottom: 10px;
+    }
+    .new-post button {
+        background: #1a73e8;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .new-post button:hover {
+        background: #0c5fcb;
+    }
+    .posts {
+        margin-top: 20px;
+    }
+    .post {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0px 2px 5px rgba(0,0,0,0.05);
+    }
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        color: #555;
+        margin-bottom: 5px;
+    }
+    .post p {
+        margin: 0;
+    }
+</style>
+
+</body>
+</html>

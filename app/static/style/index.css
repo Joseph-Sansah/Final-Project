@@ -1,0 +1,336 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    line-height: 1.6;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* ================= HERO SECTION ================= */
+.hero {
+    width: 100%;
+    min-height: 100vh;
+    background-image: url('../images/power-automate-1.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ================= NAVBAR ================= */
+nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.logo {
+    width: 120px;
+    height: auto;
+    font-size: 40px;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 20%;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #80f53c;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+}
+
+nav div a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    background-color: #fa8e8e;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+nav div a:hover {
+    background-color: #d76a6a;
+}
+
+.login-btn {
+    display: inline-block;
+    text-decoration: none;
+    padding: 12px 20px;
+    color: #fff;
+    background-image: linear-gradient(45deg, #fa8e8e, #d76a6a);
+    font-size: 13px;
+    border-radius: 30px;
+    border-top-right-radius: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.login-btn:hover {
+    background-image: linear-gradient(45deg, #d76a6a, #fa8e8e);
+    transform: scale(1.05);
+}
+
+/* ================= CONTENT ================= */
+.content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 100px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+.content .text {
+    flex: 1;
+    padding-right: 20px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.content .text h1 {
+    font-size: 50px;
+    color: #fdfcfc;
+    text-align: left;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.content .text p {
+    margin: 10px 0 30px 0;
+    color: #d6f9cd;
+    text-align: left;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.content .btn {
+    display: inline-block;
+    text-decoration: none;
+    padding: 15px 80px;
+    color: #fff;
+    background-image: linear-gradient(45deg, #fa8e8e, #d76a6a);
+    font-size: 15px;
+    border-radius: 30px;
+    border-top-right-radius: 0;
+    transition: all 0.3s ease-in-out;
+    text-align: left;
+    margin-right: 40px;
+    animation: fadeIn 2s ease-in-out;
+}
+
+.btn:hover {
+    background-image: linear-gradient(45deg, #d76a6a, #fa8e8e);
+    transform: scale(1.05);
+}
+
+.feature-image {
+    flex: 1;
+    max-width: 600px;
+    height: 540px;
+    object-fit: cover;
+    margin-left: 20px;
+    display: block;
+    background-color: transparent;
+    animation: slideIn 2s ease-in-out;
+}
+
+/* ================= FOOTER ================= */
+footer {
+    background-color: #222;
+    color: #fff;
+    padding: 10px 5px;
+    text-align: center;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
+}
+
+.footer-about,
+.footer-links,
+.footer-social {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-about h3,
+.footer-links h3,
+.footer-social h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #fa8e8e;
+}
+
+.footer-about p {
+    font-size: 13px;
+    line-height: 1.4;
+    color: #ccc;
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links ul li {
+    margin-bottom: 8px;
+}
+
+.footer-links ul li a {
+    text-decoration: none;
+    color: #80f53c;
+    font-size: 13px;
+    transition: color 0.3s ease;
+}
+
+.footer-links ul li a:hover {
+    color: #fa8e8e;
+}
+
+.footer-social .social-icons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.footer-social .social-icons a {
+    text-decoration: none;
+    font-size: 20px;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.footer-social .social-icons a:hover {
+    transform: scale(1.2);
+}
+
+.footer-social .social-icons a:nth-child(1) { color: #3b5998; }
+.footer-social .social-icons a:nth-child(2) { color: #1da1f2; }
+.footer-social .social-icons a:nth-child(3) { color: #e4405f; }
+.footer-social .social-icons a:nth-child(4) { color: #0088cc; }
+
+.footer-bottom {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #ccc;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+    .content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .content .text {
+        padding-right: 0;
+    }
+    .feature-image {
+        margin-left: 0;
+        margin-top: 20px;
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    nav ul {
+        display: none; /* hide nav links for mobile, you can add a burger later */
+    }
+    nav div a {
+        font-size: 16px;
+        padding: 5px 8px;
+    }
+    .content .text h1 {
+        font-size: 32px;
+        text-align: center;
+    }
+    .content .text p {
+        text-align: center;
+        font-size: 14px;
+    }
+    .content .btn {
+        padding: 12px 40px;
+        margin: 10px auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 28px;
+        width: auto;
+    }
+    nav div a {
+        font-size: 14px;
+        padding: 4px 6px;
+    }
+    .content .text h1 {
+        font-size: 24px;
+    }
+    .content .text p {
+        font-size: 13px;
+    }
+    .footer-about h3,
+    .footer-links h3,
+    .footer-social h3 {
+        font-size: 16px;
+    }
+    .footer-about p,
+    .footer-links ul li a {
+        font-size: 12px;
+    }
+}

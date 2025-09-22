@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Progress | CollaboLearn</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/progress.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <main class="progress-container">
+    <header class="progress-header">
+      <h1><i class="fas fa-chart-line"></i> User Progress</h1>
+      <p>Track your learning milestones and achievements.</p>
+    </header>
+
+    <section class="progress-section">
+      <div class="progress-card">
+        <h2>Course Completion</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ progress.course_completion }}%;"></div>
+        </div>
+        <p>{{ progress.course_completion }}% completed</p>
+      </div>
+
+      <div class="progress-card">
+        <h2>Assignments Submitted</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ progress.assignments_submitted }}%;"></div>
+        </div>
+        <p>{{ progress.assignments_submitted }}% submitted</p>
+      </div>
+
+      <div class="progress-card">
+        <h2>Quizzes Completed</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ progress.quizzes_completed }}%;"></div>
+        </div>
+        <p>{{ progress.quizzes_completed }}% completed</p>
+      </div>
+    </section>
+
+    <div class="back-to-dashboard">
+      <a href="{{ url_for('main.student_dashboard') }}" class="dashboard-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+  </main>
+</body>
+</html>

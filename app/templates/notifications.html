@@ -1,0 +1,22 @@
+<!-- templates/notifications.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Notifications</h2>
+    <ul>
+        {% for note in notifications %}
+            <li>
+                <strong>{{ note.title }}</strong> <br>
+                <small>{{ note.time }}</small>
+            </li>
+        {% else %}
+            <li>No new notifications.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

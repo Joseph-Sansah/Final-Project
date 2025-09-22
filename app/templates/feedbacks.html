@@ -1,0 +1,50 @@
+<!-- templates/feedback.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Peer Feedback</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f5f5; }
+        .feedback-box { background: #fff; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .feedback-box .meta { font-size: 0.9em; color: #666; margin-bottom: 0.5em; }
+        .feedback-box .content { margin-bottom: 1em; }
+        .reply-box { margin-left: 2rem; background: #f9f9f9; padding: 0.5rem; border-left: 2px solid #ccc; }
+        form { margin-top: 2rem; }
+        input, textarea { width: 100%; padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h2>All Peer Feedback</h2>
+
+    {% for fb in feedbacks %}
+    <div class="feedback-box">
+        <div class="meta"><strong>{{ fb.reviewer_name }}</strong> ({{ fb.created_at.strftime('%Y-%m-%d %H:%M') }})</div>
+        <div class="content">{{ fb.comments }}</div>
+        {% if fb.attachment %}
+            <div><a href="{{ url_for('static', filename='uploads/' ~ fb.attachment) }}" target="_blank">View Attachment</a></div>
+        {% endif %}
+        <!-- Replies -->
+        {% for reply in fb.replies %}
+        <div class="reply-box">
+            <div class="meta"><strong>{{ reply.reviewer_name }}</strong> replied ({{ reply.created_at.strftime('%Y-%m-%d %H:%M') }})</div>
+            <div class="content">{{ reply.comments }}</div>
+            {% if reply.attachment %}
+                <div><a href="{{ url_for('static', filename='uploads/' ~ reply.attachment) }}" target="_blank">View Attachment</a></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <h3>Leave Feedback</h3>
+    <form method="POST" enctype="multipart/form-data">
+        <textarea name="comments" placeholder="Write your feedback..." required></textarea>
+        <input type="file" name="attachment">
+        <button type="submit">Submit Feedback</button>
+    </form>
+</body>
+</html>

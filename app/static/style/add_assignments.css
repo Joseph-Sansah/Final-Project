@@ -1,0 +1,215 @@
+/* ==== General Reset ==== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #c8e3f5;
+  color: #2d3748;
+  line-height: 1.6;
+}
+
+/* ==== Navbar ==== */
+.navbar {
+  background: #2d3748;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.nav-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;   /* centers horizontally */
+  align-items: center;
+}
+
+.nav-left a {
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav-left a:hover {
+  color: #63b3ed;
+}
+
+/* ==== Layout ==== */
+.main-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* ==== Cards ==== */
+.card {
+  background: #fff;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.section-title {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2b6cb0;
+}
+
+/* ==== Flash Messages ==== */
+.flash-messages {
+  margin-bottom: 1rem;
+}
+
+.alert {
+  padding: 0.8rem;
+  margin-bottom: 0.6rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert.success {
+  background: #48bb78;
+  color: white;
+}
+
+.alert.error {
+  background: #e53e3e;
+  color: white;
+}
+
+/* ==== Form Styling ==== */
+.assignment-form label {
+  display: block;
+  margin: 0.6rem 0 0.3rem;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.assignment-form input,
+.assignment-form textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border 0.2s ease;
+}
+
+.assignment-form input:focus,
+.assignment-form textarea:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49,130,206,0.3);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* ==== Buttons ==== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn i {
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background: #3182ce;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2b6cb0;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: #e53e3e;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c53030;
+  transform: translateY(-1px);
+}
+
+/* ==== Assignment List ==== */
+.assignment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.assignment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: #f9fafb;
+}
+
+.assignment-info strong {
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.assignment-info .description {
+  margin: 0.3rem 0;
+  color: #4a5568;
+}
+
+.assignment-info .due {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.file-link {
+  display: inline-block;
+  margin-top: 0.3rem;
+  color: #3182ce;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+.no-file {
+  color: #a0aec0;
+  font-size: 0.9rem;
+}
+
+.no-assignments {
+  color: #718096;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem 0;
+}

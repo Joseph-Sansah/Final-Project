@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum Feedback | CollaboLearn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/forum_detail.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>Forum Feedback for: {{ forum.title }}</h1>
+        <a href="{{ url_for('main.instructor_forums') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Forums</a>
+    </header>
+
+    <main class="forum-detail">
+        <section class="forum-info">
+            <h2>Forum Details</h2>
+            <p><strong>Description:</strong> {{ forum.description }}</p>
+            <p><strong>Created by:</strong> {{ forum.instructor_name }}</p>
+            <p><strong>Creation Date:</strong> {{ forum.creation_date }}</p>
+        </section>
+
+        <section class="feedback-list">
+            <h2>Feedback Received</h2>
+            {% if feedbacks %}
+                <ul>
+                    {% for feedback in feedbacks %}
+                    <li class="feedback">
+                        <p><strong>Student:</strong> {{ feedback.student_name }}</p>
+                        <p><strong>Feedback:</strong> {{ feedback.comment }}</p>
+                        <p><strong>Submitted on:</strong> {{ feedback.submission_date }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No feedback available for this forum.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 CollaboLearn. All rights reserved.</p>
+    </footer>
+</body>
+</html>

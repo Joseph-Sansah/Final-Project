@@ -1,0 +1,215 @@
+/* Reset and base styles */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+body, h1, h2, h3, p, ul, li, a, div, section, label, input, button, table, th, td, select {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(120deg, #3498db 0%, #8e44ad 100%);
+    min-height: 100vh;
+    color: #2c3e50;
+}
+
+/* Navbar */
+.navbar {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+    padding: 1em 2em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+.logo i {
+    color: #8e44ad;
+    font-size: 1.7em;
+}
+.logo h1 {
+    font-size: 1.3em;
+    color: #3498db;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5em;
+    align-items: center;
+}
+.nav-links li a {
+    color: #8e44ad;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1em;
+    transition: color 0.2s;
+    padding: 0.3em 0.7em;
+    border-radius: 4px;
+}
+.nav-links li a:hover, .nav-links li a.active {
+    background: #f0f4fa;
+    color: #3498db;
+}
+
+/* Main Feedback Section */
+.feedback-main {
+    max-width: 1100px;
+    margin: 2.5em auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(44,62,80,0.12);
+    padding: 2.5em 2em 2em 2em;
+}
+.feedback-main h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5em;
+    text-align: center;
+    font-size: 2em;
+}
+
+/* Actions Bar */
+.feedback-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1em;
+    margin-bottom: 1.5em;
+    flex-wrap: wrap;
+}
+#search-feedback {
+    padding: 0.7em;
+    border: 1px solid #bfc9d1;
+    border-radius: 6px;
+    font-size: 1em;
+    background: #f7fafd;
+    width: 220px;
+    transition: border 0.2s;
+}
+#search-feedback:focus {
+    border-color: #8e44ad;
+    outline: none;
+    background: #fff;
+}
+#filter-type {
+    padding: 0.7em;
+    border: 1px solid #bfc9d1;
+    border-radius: 6px;
+    font-size: 1em;
+    background: #f7fafd;
+    transition: border 0.2s;
+}
+#filter-type:focus {
+    border-color: #8e44ad;
+    outline: none;
+    background: #fff;
+}
+
+/* Feedback Table */
+.feedback-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+}
+.feedback-table th, .feedback-table td {
+    padding: 1em 0.7em;
+    text-align: left;
+}
+.feedback-table th {
+    background: #f0f4fa;
+    color: #8e44ad;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+.feedback-table tr:not(:last-child) td {
+    border-bottom: 1px solid #f0f0f0;
+}
+.feedback-table td {
+    color: #2c3e50;
+    font-size: 1em;
+    word-break: break-word;
+}
+.feedback-table tr:hover {
+    background: #f7fafd;
+}
+.feedback-table .status {
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.2em 0.7em;
+    background: #eaf6fb;
+    color: #3498db;
+    font-size: 0.97em;
+}
+.feedback-table .status.reviewed {
+    background: #eafbe9;
+    color: #27ae60;
+}
+.feedback-table .status.flagged {
+    background: #fbeaea;
+    color: #e74c3c;
+}
+.feedback-table .actions {
+    display: flex;
+    gap: 0.5em;
+}
+.feedback-table .actions button {
+    background: linear-gradient(90deg, #3498db 60%, #8e44ad 100%);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.95em;
+    font-weight: 500;
+    padding: 0.4em 1em;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.feedback-table .actions button:hover {
+    background: linear-gradient(90deg, #217dbb 60%, #6c3483 100%);
+    box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .feedback-main {
+        max-width: 98vw;
+        padding: 1em 0.5em;
+    }
+    .feedback-table th, .feedback-table td {
+        padding: 0.7em 0.3em;
+    }
+}
+@media (max-width: 700px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1em 0.7em;
+    }
+    .nav-links {
+        flex-direction: column;
+        gap: 0.7em;
+        width: 100%;
+        background: #fff;
+        position: static;
+        border-radius: 0 0 10px 10px;
+    }
+    .feedback-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.7em;
+    }
+    #search-feedback, #filter-type {
+        width: 100%;
+        max-width: 100%;
+    }
+}

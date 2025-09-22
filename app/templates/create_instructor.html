@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Instructor | CollaboLearn Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/create_instructor.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Create Instructor</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('create_instructor') }}">
+        <label for="full_name">Full Name</label>
+        <input type="text" name="full_name" id="full_name" required>
+
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" required>
+
+        <label for="password">Default Password</label>
+        <input type="password" name="password" id="password" required>
+
+        <button type="submit">Add Instructor</button>
+    </form>
+</div>
+<script src="{{ url_for('static', filename='java/create_instructor.js') }}"></script>
+</body>
+</html>

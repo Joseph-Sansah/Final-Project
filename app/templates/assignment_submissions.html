@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Submissions for {{ assignment.title }} - CollaboLearn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h1>CollaboLearn</h1>
+        </div>
+        <a href="{{ url_for('main.instructor_dashboard') }}" class="nav-link">← Back to Dashboard</a>
+    </nav>
+
+    {# Flash Messages Container #}
+    <div class="flash-message-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="profile-container single-column"> {# Can be single or multi-column based on design #}
+        <section class="profile-form"> {# Reusing profile-form class for consistent styling #}
+            <h3 class="text-center">Submissions for "{{ assignment.title }}"</h3>
+            <p class="text-gray-600 text-center mb-6">Course: {{ assignment.course_name }} | Due: {{ assignment.due_date.strftime('%Y-%m-%d %H:%M') }}</p>
+
+            {% if submissions %}
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th>Submitted On</th>
+                                <th>Status</th>
+                                <th>File</th>
+                                <th>Actions</th> {# For grading/feedback later #}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for submission in submissions %}
+                            <tr>
+                                <td data-label="Student Name">{{ submission.student_name }}</td>
+                                <td data-label="Email">{{ submission.student_email }}</td>
+                                <td data-label="Submitted On">{{ submission.submission_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td data-label="Status"><span class="status-{{ submission.status|lower|replace(' ', '-') }}">{{ submission.status }}</span></td>
+                                <td data-label="File">
+                                    <a href="{{ url_for('static', filename='uploads/assignment_submissions/' + submission.file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                </td>
+                                <td data-label="Actions">
+                                    {# Placeholder for future actions like "Grade" or "Provide Feedback" #}
+                                    <button class="btn-sm btn-info" disabled>Grade</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center text-gray-600">No submissions yet for this assignment.</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

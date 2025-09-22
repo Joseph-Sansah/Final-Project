@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instructor Forums | CollaboLearn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-100">
+<!-- Header -->
+<header class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold flex items-center gap-3">
+      <i data-lucide="messages-square" class="w-7 h-7"></i>
+      Instructor Forums
+    </h1>
+    <a href="{{ url_for('main.instructor_dashboard') }}" 
+       class="flex items-center gap-2 bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      Back to Dashboard
+    </a>
+  </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-4 gap-8">
+  <!-- Sidebar -->
+  <aside class="lg:col-span-1 space-y-6">
+    <!-- Instructor Card -->
+    <div class="bg-white rounded-xl shadow p-6 text-center">
+      <img src="{{ instructor_avatar or url_for('static', filename='images/default-avatar.png') }}" 
+           alt="Instructor Avatar" class="w-20 h-20 mx-auto rounded-full mb-3 border-2 border-indigo-600">
+      <h2 class="text-lg font-bold text-gray-800">{{ instructor_name }}</h2>
+      <p class="text-sm text-gray-500">{{ instructor_email }}</p>
+    </div>
+    <!-- Stats -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h3 class="font-semibold text-gray-700">Forum Stats</h3>
+      <div class="space-y-2 text-sm text-gray-600">
+        <div class="flex justify-between"><span>Total Forums</span><span>{{ total_forums }}</span></div>
+        <div class="flex justify-between"><span>Total Replies</span><span>{{ total_replies }}</span></div>
+        <div class="flex justify-between"><span>Student Replies</span><span>{{ total_student_replies }}</span></div>
+        <div class="flex justify-between"><span>Unrated Replies</span><span>{{ total_unrated }}</span></div>
+        <div class="flex justify-between"><span>Rated Replies</span><span>{{ total_rated }}</span></div>
+      </div>
+    </div>
+    <!-- Top Students -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h3 class="font-semibold text-gray-700 mb-4">Top Students</h3>
+      <ul class="space-y-3">
+        {% for student in top_students %}
+        <li class="flex items-center gap-3">
+          <img src="{{ student.avatar or url_for('static', filename='images/default-avatar.png') }}" 
+               class="w-10 h-10 rounded-full border">
+          <div>
+            <p class="font-medium text-gray-800">{{ student.full_name }}</p>
+            <p class="text-xs text-gray-500">⭐ {{ student.avg_rating|round(1) }} | {{ student.reply_count }} replies</p>
+          </div>
+        </li>
+        {% else %}
+        <p class="text-sm text-gray-500">No student ratings yet.</p>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="lg:col-span-3 space-y-10">
+    <!-- Forums Section -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+        <i data-lucide="layout-list" class="w-6 h-6 text-indigo-600"></i>
+        Forums You Created
+      </h2>
+      {% if forums %}
+      <div class="grid md:grid-cols-2 gap-6">
+        {% for forum in forums %}
+        <div class="border rounded-lg p-5 hover:shadow-md transition bg-gray-50">
+          <h3 class="font-semibold text-gray-800">{{ forum.title }}</h3>
+          <p class="text-sm text-gray-600 mt-2 mb-3">{{ forum.description[:120] }}{% if forum.description|length > 120 %}...{% endif %}</p>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>📅 {{ forum.created_at.strftime('%Y-%m-%d') }}</span>
+            <span>💬 {{ forum.total_replies }} replies</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-500 text-sm">No forums created yet.</p>
+      {% endif %}
+    </div>
+
+    <!-- Student Replies -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+        <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600"></i>
+        Student Replies
+      </h2>
+
+      <!-- Unrated Replies -->
+      <div class="mb-8">
+        <h3 class="font-semibold text-gray-700 mb-4">Replies Needing Rating</h3>
+        {% if unrated_replies %}
+        <div class="space-y-4">
+          {% for reply in unrated_replies %}
+          <div class="p-4 border rounded-lg bg-gray-50">
+            <div class="flex items-center gap-3 mb-2">
+              <img src="{{ reply.student_avatar or url_for('static', filename='images/default-avatar.png') }}" 
+                   class="w-10 h-10 rounded-full border">
+              <div>
+                <p class="font-medium text-gray-800">{{ reply.student_name }}</p>
+                <p class="text-xs text-gray-500">in forum: {{ reply.forum_title }}</p>
+              </div>
+            </div>
+            <p class="text-gray-700 text-sm mb-3">{{ reply.content }}</p>
+            <form action="{{ url_for('main.rate_student_reply') }}" method="POST" class="flex gap-3">
+              <input type="hidden" name="reply_id" value="{{ reply.id }}">
+              <select name="rating" class="border rounded px-2 py-1 text-sm">
+                <option value="">Rate</option>
+                {% for i in range(1,6) %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
+              <input type="text" name="feedback" placeholder="Feedback (optional)" class="flex-1 border rounded px-2 py-1 text-sm">
+              <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-indigo-700">Submit</button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm">No unrated replies right now.</p>
+        {% endif %}
+      </div>
+
+      <!-- Rated Replies -->
+      <div>
+        <h3 class="font-semibold text-gray-700 mb-4">Recently Rated Replies</h3>
+        {% if rated_replies %}
+        <div class="space-y-4">
+          {% for reply in rated_replies %}
+          <div class="p-4 border rounded-lg bg-white">
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex items-center gap-3">
+                <img src="{{ reply.student_avatar or url_for('static', filename='images/default-avatar.png') }}" 
+                     class="w-10 h-10 rounded-full border">
+                <div>
+                  <p class="font-medium text-gray-800">{{ reply.student_name }}</p>
+                  <p class="text-xs text-gray-500">in forum: {{ reply.forum_title }}</p>
+                </div>
+              </div>
+              <span class="text-yellow-500">⭐ {{ reply.rating }}</span>
+            </div>
+            <p class="text-gray-700 text-sm mb-2">{{ reply.content }}</p>
+            {% if reply.feedback %}
+            <p class="text-xs text-gray-500">Instructor Feedback: {{ reply.feedback }}</p>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-sm">No rated replies yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Activity -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Forum Activity (Last 7 Days)</h2>
+      <canvas id="activityChart" class="w-full h-64"></canvas>
+    </div>
+  </main>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  lucide.createIcons();
+  const ctx = document.getElementById('activityChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ activity_labels|tojson }},
+      datasets: [{
+        label: 'Replies',
+        data: {{ activity_values|tojson }},
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        fill: true,
+        tension: 0.3
+      }]
+    }
+  });
+</script>
+</body>
+</html>

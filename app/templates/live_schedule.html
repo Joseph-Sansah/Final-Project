@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Schedule | CollaboLearn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/live_schedule.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>Schedule a Live Discussion</h1>
+        <a href="{{ url_for('main.instructor_dashboard') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </header>
+
+    <main class="live-schedule">
+        <section class="schedule-form">
+            <h2>Create New Schedule</h2>
+            <form action="{{ url_for('main.schedule_live_session') }}" method="POST">
+                <div class="form-group">
+                    <label for="session-title">Session Title:</label>
+                    <input type="text" id="session-title" name="session_title" required>
+                </div>
+                <div class="form-group">
+                    <label for="session-description">Description:</label>
+                    <textarea id="session-description" name="session_description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="session-date">Date:</label>
+                    <input type="date" id="session-date" name="session_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="session-time">Time:</label>
+                    <input type="time" id="session-time" name="session_time" required>
+                </div>
+                <button type="submit" class="btn-schedule">Schedule Session</button>
+            </form>
+        </section>
+
+        <section class="upcoming-sessions">
+            <h2>Upcoming Sessions</h2>
+            <ul id="session-list">
+                {% for session in upcoming_sessions %}
+                <li class="session">
+                    <h3>{{ session.title }}</h3>
+                    <p><strong>Description:</strong> {{ session.description }}</p>
+                    <p><strong>Date:</strong> {{ session.date }} <strong>Time:</strong> {{ session.time }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if not upcoming_sessions %}
+            <p>No upcoming sessions scheduled.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 CollaboLearn. All rights reserved.</p>
+    </footer>
+</body>
+</html>

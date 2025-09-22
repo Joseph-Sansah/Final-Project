@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inbox Messages</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>📨 Inbox</h1>
+
+<div class="message-box">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message">
+                <div class="sender">{{ message.sender }}</div>
+                <div class="time">{{ message.time }}</div>
+                <div class="content">{{ message.content }}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-messages">No messages to display.</div>
+    {% endif %}
+</div>
+
+</body>
+</html>

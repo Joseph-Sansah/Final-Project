@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CollaboLearn | Student Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-neutral-800 text-white flex flex-col p-6">
+    <header class="text-center border-b border-blue-800 pb-4 mb-4">
+      <h1 class="text-2xl font-bold flex flex-col items-center">
+        <i class="fas fa-graduation-cap mb-2"></i>
+        CollaboLearn
+      </h1>
+      <p class="text-sm text-blue-200 mt-1">{{ full_name }}</p>
+    </header>
+
+    <nav class="space-y-2">
+      <a href="{{ url_for('main.student_dashboard') }}" class="flex items-center p-3 rounded-lg bg-blue-700 shadow-md">
+        <i class="fas fa-home mr-3"></i> Dashboard
+      </a>
+      <a href="{{ url_for('main.assignments') }}" class="flex items-center p-3 rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-tasks mr-3"></i> Assignments
+      </a>
+      <a href="{{ url_for('main.peer_feedback') }}" class="flex items-center p-3 rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-star mr-3"></i> Peer Feedback
+      </a>
+      <!-- FIXED: point to forums index, not individual forum -->
+      <a href="{{ url_for('main.forum_list' ) }}"class="flex items-center p-3 rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-comments mr-3"></i> Forums
+      </a>
+      <a href="{{ url_for('main.logout') }}" class="flex items-center p-3 mt-auto rounded-lg bg-red-600 hover:bg-red-700 transition">
+        <i class="fas fa-sign-out-alt mr-3"></i> Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Dashboard -->
+  <main class="flex-1 p-6 space-y-8">
+
+    <!-- Welcome -->
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-2xl font-semibold flex items-center">
+        <i class="fas fa-hand-peace text-blue-600 mr-2"></i> Welcome back, {{ full_name }}
+      </h2>
+      <p class="text-gray-600 mt-1">Your collaborative learning journey continues!</p>
+    </section>
+
+    <!-- Stats -->
+    <section id="stats-section" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Filled dynamically via JS -->
+    </section>
+
+    <!-- Dashboard Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+      <!-- Assignments -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <header class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold flex items-center">
+            <i class="fas fa-tasks text-blue-600 mr-2"></i> Assignments
+          </h2>
+          <a href="{{ url_for('main.assignments') }}" class="text-blue-600 hover:underline">View All</a>
+        </header>
+        {% if assignments %}
+        <ul class="space-y-2">
+          {% for a in assignments[:3] %}
+          <li class="p-3 border rounded-lg flex justify-between hover:bg-gray-50">
+            <span>{{ a.title }} (Instructor: {{ a.instructor_name }})</span>
+            <a href="{{ url_for('main.view_assignment', assignment_id=a.id) }}" class="text-blue-600 hover:underline">View</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-center"></p>
+        {% endif %}
+      </div>
+
+      <!-- My Courses -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold flex items-center mb-4">
+          <i class="fas fa-book text-green-600 mr-2"></i> My Courses
+        </h2>
+        {% if my_courses %}
+        <ul class="space-y-2">
+          {% for course in my_courses[:3] %}
+          <li class="p-3 border rounded-lg flex justify-between hover:bg-gray-50">
+            <span>{{ course.title }}</span>
+            <a href="{{ url_for('main.course_detail', course_id=course.id) }}" class="text-green-600 hover:underline">View</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-center">No courses.</p>
+        {% endif %}
+      </div>
+
+      <!-- Quizzes -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold flex items-center mb-4">
+          <i class="fas fa-question-circle text-orange-600 mr-2"></i> Quizzes
+        </h2>
+        {% if quizzes %}
+        <ul class="space-y-2">
+          {% for quiz in quizzes[:3] %}
+          <li class="p-3 border rounded-lg flex justify-between hover:bg-gray-50">
+            <span>{{ quiz.title }}</span>
+            <a href="{{ url_for('main.quizzes', quizzes_id=quiz.id) }}" class="text-orange-600 hover:underline">Take Quiz</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-center">No quizzes available.</p>
+        {% endif %}
+      </div>
+
+      <!-- Forums -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold flex items-center mb-4">
+          <i class="fas fa-comments text-purple-600 mr-2"></i> Forums
+        </h2>
+        {% if forums %}
+        <ul class="space-y-2">
+          {% for forum in forums[:3] %}
+          <li class="p-3 border rounded-lg flex justify-between hover:bg-gray-50">
+            <span>{{ forum.title }}</span>
+            <!-- FIXED: use forum_id when linking to a specific forum -->
+            <a href="{{ url_for('main.forum', forum_id=forum.id) }}" class="text-blue-600 hover:underline">Join</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500 text-center">No forums yet.</p>
+        {% endif %}
+      </div>
+    </section>
+  </main> 
+
+  <!-- Scripts -->
+  <script>
+    async function fetchDashboardData() {
+      const res = await fetch("{{ url_for('main.get_dashboard_data') }}");
+      const data = await res.json();
+
+      // ✅ Update stats
+      const statsHTML = `
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <i class="fas fa-tasks text-blue-600 text-2xl mb-2"></i>
+          <p class="text-sm text-gray-500">Assignments Due</p>
+          <p class="text-xl font-bold">${data.assignments_due}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <i class="fas fa-star text-yellow-500 text-2xl mb-2"></i>
+          <p class="text-sm text-gray-500">Feedback Received</p>
+          <p class="text-xl font-bold">${data.feedback_received}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <i class="fas fa-share text-green-600 text-2xl mb-2"></i>
+          <p class="text-sm text-gray-500">Feedback Given</p>
+          <p class="text-xl font-bold">${data.feedback_given}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <i class="fas fa-users text-purple-600 text-2xl mb-2"></i>
+          <p class="text-sm text-gray-500">Active Peers</p>
+          <p class="text-xl font-bold">${data.active_peers}</p>
+        </div>`;
+      document.getElementById("stats-section").innerHTML = statsHTML;
+    }
+
+    fetchDashboardData();
+    setInterval(fetchDashboardData, 10000);
+  </script>
+</body>
+</html>
