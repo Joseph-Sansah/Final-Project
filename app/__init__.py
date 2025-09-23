@@ -8,6 +8,9 @@ from flask_login import LoginManager
 import mysql.connector
 from mysql.connector import Error
 
+# Initialize SocketIO with threading mode to avoid eventlet issues
+socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
+
 # --- Load environment variables ---
 load_dotenv()  # loads variables from .env into os.environ
 
