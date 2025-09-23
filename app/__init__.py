@@ -8,11 +8,8 @@ from flask_login import LoginManager
 import mysql.connector
 from mysql.connector import Error
 
-# Initialize SocketIO with threading mode to avoid eventlet issues
-socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
-
 # --- Load environment variables ---
-load_dotenv()  # loads variables from .env into os.environ
+load_dotenv()
 
 # --- Config ---
 UPLOAD_FOLDER = os.path.join("static", "uploads")
@@ -20,13 +17,12 @@ ALLOWED_EXTENSIONS = {
     "png", "jpg", "jpeg", "gif", "pdf", "doc", "docx", "ppt", "pptx", "zip", "txt"
 }
 DATA_FILE = "courses.json"
-
-# --- Ensure folders exist ---
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --- Extensions ---
-socketio = SocketIO()
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")  # use eventlet in prod
 login_manager = LoginManager()
+
 
 # --- File Helpers ---
 def allowed_file(filename):
@@ -50,13 +46,24 @@ def save_courses(courses):
 
 # --- Database Connection ---
 def get_db_connection():
+    """Return a new mysql.connector connection or None if fails."""
+    host = os.getenv("DB_HOST", "localhost")
+    port = int(os.getenv("DB_PORT", 3306))
+    user = os.getenv("DB_USER", "root")
+    password = os.getenv("DB_PASSWORD", "")
+    database = os.getenv("DB_NAME", "")
+
     try:
-        return mysql.connector.connect(
-            host=os.getenv("DB_HOST", "localhost"),
-            user=os.getenv("DB_USER", "root"),
-            password=os.getenv("DB_PASSWORD", ""),
-            database=os.getenv("DB_NAME", ""),
+        conn = mysql.connector.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            database=database,
+            connection_timeout=5,
+            charset="utf8mb4",
         )
+        return conn
     except Error as e:
         print(f"❌ Database connection failed: {e}")
         return None
