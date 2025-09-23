@@ -20,7 +20,7 @@ DATA_FILE = "courses.json"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --- Extensions ---
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")  # eventlet for production
+socketio = SocketIO(async_mode="threading", cors_allowed_origins="*")  # Quick fix
 login_manager = LoginManager()
 
 
