@@ -20,7 +20,7 @@ DATA_FILE = "courses.json"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --- Extensions ---
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")  # use eventlet in prod
+socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")  # eventlet for production
 login_manager = LoginManager()
 
 
@@ -60,7 +60,7 @@ def get_db_connection():
             user=user,
             password=password,
             database=database,
-            connection_timeout=5,
+            connection_timeout=10,
             charset="utf8mb4",
         )
         return conn
@@ -102,7 +102,7 @@ def create_app():
                 cursor.close()
                 conn.close()
         except Exception as e:
-            print(f"⚠️ Audit log failed: {e}")
+            print(f"⚠ Audit log failed: {e}")
 
     app.log_action = log_action
 
@@ -118,7 +118,7 @@ def create_app():
                 conn.close()
                 return settings
         except Exception as e:
-            print(f"⚠️ Error loading system settings: {e}")
+            print(f"⚠ Error loading system settings: {e}")
         return {}
 
     @app.context_processor
@@ -149,7 +149,7 @@ def create_app():
                     cursor.close()
                     conn.close()
             except Exception as e:
-                print(f"⚠️ Failed to update last seen: {e}")
+                print(f"⚠ Failed to update last seen: {e}")
 
     # --- Register Blueprints ---
     from .routes import main as main_blueprint
