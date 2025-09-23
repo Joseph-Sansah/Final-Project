@@ -9,11 +9,3 @@ Werkzeug==3.0.3
 itsdangerous==2.2.0
 Jinja2==3.1.4
 WTForms==3.1.2
-
-# Production WSGI server
-gunicorn==23.0.0  
-
-# Async workers for Flask-SocketIO
-eventlet==0.36.1  
-gevent==24.2.1
-gevent-websocket==0.10.1
